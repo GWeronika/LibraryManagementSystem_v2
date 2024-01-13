@@ -1,4 +1,5 @@
 # Library Network Management System
+Second better approach.
 Project involving the design and implementation of software for a library network. This solution is the result of the cooperation of a two-member team. 
 
 The full description will appear in the future :)
