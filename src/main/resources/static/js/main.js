@@ -17,23 +17,23 @@ document.addEventListener("DOMContentLoaded", function () {
             <div id="slideshow" class="slider-container">
                <button class="prev">&#10094;</button>
         <div class="slides">
-            <img src="images/slide1.jpg" class="Rectangle4 slide1" />
+            <img src="images/slide1.jpg" class="Rectangle4 slide1" alt="slide1"/>
            <div class="Rectangle5">Filia Czyżyny w końcu otwarta!</div>
         </div>
         <div class="slides">
-            <img src="images/slide2.jpg" class="Rectangle4 slide2" />
+            <img src="images/slide2.jpg" class="Rectangle4 slide2" alt="slide2"/>
             <div class="Rectangle5">"Statystyczny Polak" jednak czyta</div>
         </div>
         <div class="slides">
-            <img  src="images/slide3.jpg" class="Rectangle4 slide3" />
+            <img  src="images/slide3.jpg" class="Rectangle4 slide3" alt="slide3" />
             <div class="Rectangle5">Nowości w katalogu</div>
         </div>
         <div class="slides">
-            <img src="images/slide4.jpg" class="Rectangle4 slide4" />
+            <img src="images/slide4.jpg" class="Rectangle4 slide4" alt="slide4" />
             <div class="Rectangle5">Bronowicki Klub Książki</div>
         </div>
         <div class="Rectangle3 slides">
-            <img src="images/slide5.jpg" class="Rectangle4 slide5" />
+            <img src="images/slide5.jpg" class="Rectangle4 slide5" alt="slide5"/>
             <div class="Rectangle5">Kampania "Zima z książką"</div>
         </div>
         <button class="next">&#10095;</button>
@@ -187,9 +187,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 let forgotPasswordLink = document.getElementById("resetPass");
                 forgotPasswordLink.addEventListener("click", function () {
-
-                    let additionalDiv1 = document.querySelector(".additional-div1");
-                    additionalDiv1.innerHTML = `
+                    //let additionalDiv1 = document.querySelector(".additional-div1");
+                    let overlay = document.createElement("div");
+                    overlay.classList.add("overlay");
+                    let overlayC = document.createElement("div");
+                    overlayC.classList.add("overlay-content-column");
+                    document.body.appendChild(overlay);
+                    overlay.appendChild(overlayC);
+                    overlayC.innerHTML = `
                     <div class="registration-form">
                         <h2>Odzyskaj swoje hasło:</h2>
                         <div class="sections">
@@ -207,16 +212,25 @@ document.addEventListener("DOMContentLoaded", function () {
                         <button type="submit" id="passButton">Potwierdź</button>
                     </div>
                 `;
+                    overlay.addEventListener("click", function (event) {
+                        if (!overlayC.contains(event.target)) {
+                            overlay.remove();
+                        }
+                    });
                     initializePassButton();
                 });
 
                 let registerLink = document.getElementById("signup");
                 registerLink.addEventListener("click", function () {
-
-                    let additionalDiv1 = document.querySelector(".additional-div1");
-                    additionalDiv1.innerHTML = `
+                    let overlay = document.createElement("div");
+                    overlay.classList.add("overlay");
+                    let overlayC = document.createElement("div");
+                    overlayC.classList.add("overlay-content-column");
+                    document.body.appendChild(overlay);
+                    overlay.appendChild(overlayC);
+                    overlayC.innerHTML = `
                 <div class="registration-form">
-                  <h2>Create a new account:</h2>
+                  <h2>Zarejestruj się:</h2>
                   <div class="sections">
                   <div class="section">
                   <label for="name">Imię</label>
@@ -239,6 +253,11 @@ document.addEventListener("DOMContentLoaded", function () {
                   <button type="submit" id="registerButton">Register</button>
                 </div>
               `;
+                    overlay.addEventListener("click", function (event) {
+                        if (!overlayC.contains(event.target)) {
+                            overlay.remove();
+                        }
+                    });
                     initializeRegisterButton();
                 });
             }
@@ -264,6 +283,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 console.log(data);
                 if (data) {
+                    // let objectName;
                     user_id = data.id;
                     console.log(data.id);
 
@@ -316,7 +336,7 @@ document.addEventListener("DOMContentLoaded", function () {
             showEmpAcc(user_id);
         }
         else{
-            showAdmAcc(user_id);
+            showAdmAcc();
         }
 
         let wylogujButton = document.createElement("button");
@@ -368,7 +388,7 @@ document.addEventListener("DOMContentLoaded", function () {
         wypozyczeniaDiv.textContent = "Wypożyczenia";
 
         let usunDiv = document.createElement("div");
-       usunDiv.classList.add("option");
+        usunDiv.classList.add("option");
         usunDiv.textContent = "Usuń konto";
 
         optionsDiv.appendChild(mojeDaneDiv);
@@ -490,7 +510,7 @@ document.addEventListener("DOMContentLoaded", function () {
               `;
             const blurbInput = document.getElementById("blurb");
             blurbInput.style.width = '20%';
-            initializeAddButton();
+            initializeAddButtonOne();
         });
 
         zamowieniaDiv.addEventListener("click", function () {
@@ -538,7 +558,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    function showAdmAcc(user_id){
+    function showAdmAcc(){
 
         let additionalDiv1 = document.querySelector(".additional-div1");
         let leftSideAcc = document.createElement("div");
@@ -603,15 +623,32 @@ document.addEventListener("DOMContentLoaded", function () {
             let underHelloText = document.querySelector(".dataDiv");
             underHelloText.innerHTML = `
                 <div class="registration-form">
-                  <p>Dodaj nowego pracownika:</p>
+                  <h2>Dodaj nowego pracownika:</h2>
                   <div class="sections">
+                 
                   <div class="section">
-                  <input type="text" id="name" name="name" required placeholder="Imię">
-                  <input type="text" id="lastName" name="lastName" required placeholder="Nazwisko">
+                  <label for="emp-name">Imię</label>
+                  <input type="text" id="emp-name" name="emp-name" required>
+                  <label for="emp-lastName">Nazwisko</label>
+                  <input type="text" id="emp-lastName" name="emp-lastName" required>
+                  <label for="emp-libraryID">Biblioteka:</label>
+                    <select id="emp-libraryID" name="emp-libraryID">
+                        <option value="1">Filia Wierzba</option>
+                        <option value="2">Filia Dąb</option>
+                        <option value="3">Filia Sosna</option>
+                        <option value="4">Filia Jesion</option>
+                        <option value="5">Filia Topola</option>
+                    </select>
+                    
+                  <div class="section">
+                  <label for="emp-address">Adres</label>
+                  <input type="text" id="emp-address" name="emp-address" required>
+                  <label for="emp-phoneNum">Numer telefonu</label>
+                  <input type="text" id="emp-phoneNum" name="emp-phoneNum" required>
                   </div>
-				  </div>
+                   
+\t\t\t\t  </div>
                   <button type="submit" id="addButton">Dodaj</button>
-                  <div class="section">
                 </div>
               `;
             initializeAddButton(addEmpButtonClick);
@@ -715,20 +752,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    function addLibraryOpening(libraryID, day, openHour, closeHour) {
-        fetch(`/api/libopening/add?libraryID=${libraryID}&day=${day}&openHour=${openHour}&closeHour=${closeHour}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Błąd HTTP. Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .catch(error => {
-                console.error('Błąd podczas zmiany adresu email:', error);
-                throw error;
-            });
-    }
-
     function fetchLibrariesData() {
         fetch(`/api/library/all`)
             .then(response => {
@@ -751,129 +774,112 @@ document.addEventListener("DOMContentLoaded", function () {
         dataDiv.innerHTML = '';
 
         let olElement = document.createElement('ol');
-        function closeModal() {
-            let modalContainer = document.querySelector('.overlay');
-            if (modalContainer) {
-                document.body.removeChild(modalContainer);
-                document.removeEventListener('click', closeModal);
-            }
-        }
 
-        data.forEach((library, index) => {
+        let selectedOpening = null;
+        data.forEach((library) => {
             let liElement = document.createElement('li');
             liElement.textContent += `${library.name}: `;
             liElement.textContent += `${library.location}, `;
             liElement.textContent += `Numer telefonu: ${library.phoneNum}, `;
             liElement.textContent += `Email: ${library.email}`;
 
-            liElement.addEventListener('mouseover', function () {
-                liElement.style.textDecoration = 'underline';
-            });
-            liElement.addEventListener('mouseout', function () {
-                liElement.style.textDecoration = 'none';
-            });
-
             liElement.addEventListener('click', function () {
                 fetchLibraryOpeningData(library.id)
                     .then(openingsData => {
-                        console.log("Openingi: ", openingsData);
-
                         let openingsList = openingsData.map(openingArray => {
                             if (openingArray && openingArray.length > 0) {
-                                let opening = openingArray[0];
+                                let opening = openingArray[0];      //ten opening
                                 if (opening.day && opening.openHour && opening.closeHour) {
-                                    return `${opening.day}: ${opening.openHour} - ${opening.closeHour}`;
+                                    return `<li>${opening.day}: ${opening.openHour} - ${opening.closeHour}</li>`;
                                 } else {
                                     console.log("Nieprawidłowe dane otwarcia:", opening);
-                                    return "Nieprawidłowe dane otwarcia";
+                                    return "<li>Nieprawidłowe dane otwarcia</li>";
                                 }
                             } else {
                                 console.log("Nieprawidłowe dane otwarcia: brak danych");
-                                return "Nieprawidłowe dane otwarcia";
+                                return "<li>Nieprawidłowe dane otwarcia</li>";
                             }
-                        }).join('<br>');
+                        }).join('');
 
                         let modalContainer = document.createElement('div');
                         modalContainer.classList.add("overlay");
                         let modalContent = document.createElement('div');
                         modalContent.classList.add("overlay-content");
-                        let modalText = document.createElement('p');
-                        modalText.innerHTML = openingsList;
 
-                        modalContent.style.overflowY = 'auto';
-                        modalContent.style.maxHeight = '30%';
+                        // Create an unordered list and append each opening time as a list item
+                        let modalList = document.createElement('ul');
+                        modalList.innerHTML = openingsList;
 
-                        modalContent.appendChild(modalText);
-                        modalContainer.appendChild(modalContent);
-                        document.body.appendChild(modalContainer);
-
-                        document.addEventListener('click', closeModal);
-                        modalContent.addEventListener('click', function (event) {
-                            event.stopPropagation();
-                        });
-
-                        openingsData.forEach(opening => {
-                            let openingLiElement = document.createElement('li');
-                            openingLiElement.textContent = `${opening.day}: ${opening.openHour} - ${opening.closeHour}`;
-
-                            openingLiElement.addEventListener('click', function () {
+                        modalList.querySelectorAll("li").forEach((opening, index) => {
+                            selectedOpening = openingsData[index];
+                            addEventListener('click', function () {
                                 let secondModalContainer = document.createElement('div');
                                 secondModalContainer.classList.add("overlay");
                                 let secondModalContent = document.createElement('div');
-                                secondModalContent.classList.add("overlay-content");
-
+                                secondModalContent.classList.add("overlay-content-column");
                                 let secondModalTitle = document.createElement('h2');
-                                secondModalTitle.innerText = `Edytuj godziny otwarcia: ${opening.day} dla ${library.name}`;
+                                secondModalTitle.innerText = `Edytuj godziny otwarcia:`;
                                 secondModalContent.appendChild(secondModalTitle);
 
-                                let modalInputOpen = createModalTimeInput('Otwarcie', opening.openHour);
-                                let modalInputClose = createModalTimeInput('Zamknięcie', opening.closeHour);
+                                let inputyDiv = document.createElement("div");
+                                let modalInputOpen = document.createElement('input');
+                                let modalInputClose = document.createElement('input');
+                                modalInputOpen.type = 'text';
+                                modalInputClose.type = 'text';
+                                modalInputOpen.placeholder = 'HH:MM';
+                                modalInputClose.placeholder = 'HH:MM';
 
-                                secondModalContent.appendChild(modalInputOpen);
-                                secondModalContent.appendChild(modalInputClose);
+                                secondModalContent.appendChild(inputyDiv);
+                                inputyDiv.appendChild(modalInputOpen);
+                                inputyDiv.appendChild(modalInputClose);
+                                inputyDiv.classList.add("inputyDiv");
 
+                                let buttonsDiv = document.createElement("div");
                                 let modalSaveButton = createMButton('Zapisz');
                                 let modalCancelButton = createMButton('Anuluj');
                                 let modalDeleteButton = createMButton('Usuń');
-
-                                secondModalContent.appendChild(modalSaveButton);
-                                secondModalContent.appendChild(modalCancelButton);
-                                secondModalContent.appendChild(modalDeleteButton);
+                                secondModalContent.appendChild(buttonsDiv);
+                                buttonsDiv.appendChild(modalSaveButton);
+                                buttonsDiv.appendChild(modalCancelButton);
+                                buttonsDiv.appendChild(modalDeleteButton);
+                                buttonsDiv.classList.add("inputyDiv");
 
                                 secondModalContainer.appendChild(secondModalContent);
                                 document.body.appendChild(secondModalContainer);
 
-                                document.addEventListener('click', function closeSecondModal(event) {
-                                    if (!secondModalContent.contains(event.target)) {
-                                        document.body.removeChild(secondModalContainer);
-                                        document.removeEventListener('click', closeSecondModal);
-                                    }
-                                });
+                                if (selectedOpening.length > 0) {
+                                    const firstOpening = selectedOpening[0];
 
-                                secondModalContent.addEventListener('click', function (event) {
-                                    event.stopPropagation();
-                                });
+                                    const theId = firstOpening.id;
+                                    const theDay = firstOpening.day;
 
                                 modalSaveButton.addEventListener('click', function () {
-                                    console.log('Kliknięto Zapisz');
-                                    document.body.removeChild(secondModalContainer);
-                                    document.removeEventListener('click', closeSecondModal);
+                                    modalInputOpen = modalInputOpen.trim();
+                                    modalInputClose = modalInputOpen.trim();
+                                    addLibraryOpening(library.id, theId, theDay, modalInputOpen, modalInputClose);
+                                    secondModalContainer.remove();
                                 });
 
                                 modalCancelButton.addEventListener('click', function () {
                                     console.log('Kliknięto Anuluj');
-                                    document.body.removeChild(secondModalContainer);
-                                    document.removeEventListener('click', closeSecondModal);
+                                    secondModalContainer.remove();
                                 });
 
                                 modalDeleteButton.addEventListener('click', function () {
-                                    console.log('Kliknięto Usuń');
-                                    document.body.removeChild(secondModalContainer);
-                                    document.removeEventListener('click', closeSecondModal);
+                                    console.log("SELECTED", selectedOpening);
+                                    deleteLibraryOpening(library.id, theId)
+                                        .then(bool => { if(!bool) alert("Otwarcie nie zostało usunięte"); })
+                                    secondModalContainer.remove();
                                 });
+                                } else {
+                                    console.error('selectedOpenings is empty.');
+                                }
                             });
-                            modalContent.appendChild(openingLiElement);
                         });
+
+                        modalContent.appendChild(modalList);
+                        modalContainer.appendChild(modalContent);
+                        document.body.appendChild(modalContainer);
                     })
                     .catch(error => {
                         console.error("Błąd podczas pobierania godzin otwarcia biblioteki", error);
@@ -882,8 +888,31 @@ document.addEventListener("DOMContentLoaded", function () {
             olElement.appendChild(liElement);
         });
         dataDiv.appendChild(olElement);
-        dataDiv.style.maxHeight = '300px';
-        dataDiv.style.overflow = 'auto';
+    }
+
+    function deleteLibraryOpening(libraryID, openingID) {
+        return fetch(`/api/libopening/delete?libraryID=${libraryID}&openingID=${openingID}`)
+            .then(response => response.json())
+            .catch(error => console.error('Błąd podczas usuwania połączenia:', error));
+    }
+
+    function addLibraryOpening(libraryID, openingID, day, openHour, closeHour) {
+        deleteLibraryOpening(libraryID, openingID)
+            .then(bool => {
+                if(bool) {
+                    fetch(`/api/libopening/add?libraryID=${libraryID}&day=${day}&openHour=${openHour}&closeHour=${closeHour}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`Błąd HTTP. Status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .catch(error => {
+                            console.error('Błąd podczas zmiany godzin otwarcia:', error);
+                            throw error;
+                        });
+                }
+            })
     }
 
     function createModalTimeInput(label, value) {
@@ -938,7 +967,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 openChangeModal("Zmiana adresu email", "Adres email", changeAdminEmail, accountID);
                                 break;
                             case 'Zmiana hasła':
-                                openChangePasswordModal(null, email);
+                                openChangePasswordModal(email);
                                 break;
                             default:
                                 console.warn('Brak obsługi dla klikniętego tekstu.');
@@ -1008,11 +1037,9 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-
-
     function initializePassButton() {
-        let registerButton = document.getElementById("passButton");
-        registerButton.addEventListener("click", function (event) {
+        let passButton = document.getElementById("passButton");
+        passButton.addEventListener("click", function (event) {
             event.preventDefault();
             console.log("Button clicked");
             passButtonClick();
@@ -1022,25 +1049,12 @@ document.addEventListener("DOMContentLoaded", function () {
         let email = document.getElementById("emailPass").value;
         let password = document.getElementById("forgotPassword").value;
 
-        changePassword(email, password)
-            .then(r => { if(!r) alert("Hasło niezmienione. Hasło musi posiadać znaki, [A-Z][a-z][0-9][@#$%^&+=!.]"); });
-    }
-    function changePassword(email, password) {
-        return fetch(`/api/account/update/password/byemail?email=${email}&password=${password}`)
-            .then(response => response.json())
-            .catch(error => {
-                console.error('Błąd podczas zmiany hasła:', error);
-            });
+        changePassword(email, password);
+        let overlay = document.getElementsByClassName("overlay");
+        overlay.remove();
     }
 
-    function changePasswordByID(accountID, password) {
-        return fetch(`/api/account/update/password/byid?accountID=${accountID}&password=${password}`)
-            .then(response => response.json())
-            .catch(error => {
-                console.error('Błąd podczas zmiany hasła:', error);
-            });
-    }
-    function initializeAddButton() {
+    function initializeAddButtonOne() {
         let addButton = document.getElementById("addButton");
         addButton.addEventListener("click", function (event) {
             event.preventDefault();
@@ -1048,8 +1062,17 @@ document.addEventListener("DOMContentLoaded", function () {
             addButtonClick();
         });
     }
-    initializeAddButton();
+    initializeAddButtonOne();
 
+
+    function initializeAddButton(func) {
+        let addButton = document.getElementById("addButton");
+        addButton.addEventListener("click", function (event) {
+            event.preventDefault();
+            func();
+        });
+    }
+    initializeAddButton();
 
     function addButtonClick() {
         let title = encodeURIComponent(document.getElementById("title").value);
@@ -1097,6 +1120,8 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("pass:", password);
 
         createAccount(email, password, firstName, lastName, phoneNum);
+        let overlay = document.getElementsByClassName("overlay");
+        overlay.remove();
     }
 
     function createAccount(email, password, firstName, lastName, phoneNumber) {
@@ -1170,11 +1195,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         // Iterate through the data and create a div for each book
-        data.forEach((book, index) => {
+        data.forEach((book) => {
             // Create a div element for each book
             let divElement = document.createElement('div');
             divElement.classList.add("target");
-            divElement.textContent = `${book.id}. ${book.title}, Author: ${book.author}`; // Adjust property names accordingly
+            divElement.textContent = `${book.id}. ${book.title}, Autor: ${book.author}`; // Adjust property names accordingly
             divElement.id = `book-${book.id}`; // Set a unique ID based on the book's ID
 
             // Add event listener for each book div
@@ -1318,7 +1343,7 @@ document.addEventListener("DOMContentLoaded", function () {
         getDailyOverdueCost()
             .then(dept => {
                 let counter = 0;
-                data.forEach((loan, index) => {
+                data.forEach((loan) => {
                     if (loan.status === 'OVERDUE') {
                         counter++;
                         let punishment = parseFloat(countDept(loan.returnDate, dept)).toFixed(1);
@@ -1430,7 +1455,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let olElement = document.createElement('ol');
 
-        data.forEach((order, index) => {
+        data.forEach((order) => {
             let liElement = document.createElement('li');
             liElement.textContent = `Order ID: ${order.id}, Date: ${order.date}, Status: ${order.status}`;
 
@@ -1439,7 +1464,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     let modalContainer = document.createElement('div');
                     modalContainer.classList.add("overlay");
                     let modalContent = document.createElement('div');
-                   modalContent.classList.add("overlay-content");
+                    modalContent.classList.add("overlay-content");
                     let modalText = document.createElement('p');
                     modalText.innerText =`Czy na pewno chcesz usunąć zamówienie ${order.id}?`;
                     let modalNoButton = document.createElement('button');
@@ -1643,7 +1668,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let olElement = document.createElement('ol');
 
         // Iterate through the data and append information to the ordered list
-        data.forEach((loan, index) => {
+        data.forEach((loan) => {
             let liElement = document.createElement('li');
             liElement.textContent = `Loan ID: ${loan.id}, Loan Date: ${loan.loanDate}, Return Date: ${loan.returnDate}, Status: ${loan.status}`; // Adjust property names accordingly
 
@@ -1847,7 +1872,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 <p class="clickable">   Numer telefonu: ${employee.phoneNumber}</p>
                 <p>                     Stanowisko: ${employee.position}</p>
                 <p>                     Biblioteka: ${library.name}</p>
-                <p class="clickable">   Zmień hasło:</p>
             `;
 
                     divElement.style.marginLeft = '10px';
@@ -1869,10 +1893,6 @@ document.addEventListener("DOMContentLoaded", function () {
                                     break;
                                 case 'Numer telefonu':
                                     openChangeModal("Zmiana numeru telefonu", "Numer telefonu", changeEmployeePhoneNumber, user_id);
-                                    break;
-                                case 'Zmień hasło':
-                                    console.log("Klikniete haslo");
-                                    openChangePasswordModal(employee.accountID, null);
                                     break;
                                 default:
                                     console.warn('Brak obsługi dla klikniętego tekstu.');
@@ -1938,6 +1958,85 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
+    function getLibraryName(libraryID) {
+        return fetch(`/api/library/byid?id=${libraryID}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Błąd HTTP. Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(library => {
+                return library;
+            })
+            .catch(error => {
+                console.error('Błąd podczas pobierania nazwy biblioteki:', error);
+                throw error;
+            });
+    }
+
+    function fetchReaderData() {
+        //////////zamiana na readerID
+        fetch(`/api/reader/byid?readerID=${user_id}`)
+            .then(response => response.json())
+            .then(data => {
+                handleReaderData(data);
+            })
+            .catch(error => {
+                console.error('Error fetching reader data:', error);
+            });
+    }
+
+    function handleReaderData(data) {
+        let dataDiv = document.querySelector(".dataDiv");
+        dataDiv.innerHTML = '';
+
+        let containerDiv = document.createElement('div');
+        containerDiv.classList.add('reader-container');
+
+        let reader = data[0];
+
+        let divElement = document.createElement('div');
+        divElement.innerHTML = `
+            <p>     Imię: ${reader.firstName}</p>
+            <p>     Nazwisko: ${reader.lastName}</p>
+            <p>     Adres: ${reader.address}</p>
+            <p>     Numer telefonu: ${reader.phoneNumber}</p>
+            <p>     Numer karty: ${reader.libraryCardNumber}</p>
+             <p class="clickable">     Zmień hasło:</p>
+        `;
+        containerDiv.appendChild(divElement);
+        dataDiv.appendChild(containerDiv);
+
+        divElement.querySelectorAll('p.clickable').forEach((clickableParagraph) => {
+            clickableParagraph.addEventListener('click', function () {
+                const clickedText = clickableParagraph.textContent.trim();
+                const propertyName = clickedText.split(':')[0].trim();
+                console.log('Kliknięto na: ', propertyName);
+
+                switch (propertyName) {
+                    case 'Nazwisko':
+                        openChangeModal("Zmiana nazwiska", "Nazwisko", changeReaderLastName, user_id);
+                        break;
+                    case 'Adres':
+                        openChangeModal("Zmiana adresu", "Adres", changeReaderAddress, user_id);
+                        break;
+                    case 'Numer telefonu':
+                        openChangeModal("Zmiana numeru telefonu", "Numer telefonu", changeReaderPhoneNumber, user_id);
+                        break;
+                    case 'Zmień hasło':
+                        openChangePasswordModal(reader.accountID, null);
+                        break;
+                    default:
+                        console.warn('Brak obsługi dla klikniętego tekstu.');
+                        break;
+                }
+            });
+        });
+
+    }
+
+
     function changeReaderLastName(readerID, lastName) {
         fetch(`/api/reader/update/lastname?readerID=${readerID}&lastName=${lastName}`)
             .then(response => {
@@ -1951,6 +2050,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 throw error;
             });
     }
+
 
     function changeReaderAddress(readerID, address) {
         fetch(`api/reader/update/address?reader=${readerID}&address=${address}`)
@@ -1980,90 +2080,80 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    function getLibraryName(libraryID) {
-        return fetch(`/api/library/byid?id=${libraryID}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Błąd HTTP. Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(library => {
-                return library;
-            })
-            .catch(error => {
-                console.error('Błąd podczas pobierania nazwy biblioteki:', error);
-                throw error;
-            });
-    }
+    function openChangePasswordModal(accountID, email) {
+        let modalContainer = document.createElement('div');
+        modalContainer.classList.add("overlay");
 
-    function fetchReaderData() {
-        fetch(`/api/reader/byid?readerID=${user_id}`)
-            .then(response => response.json())
-            .then(data => {
-                handleReaderData(data);
-            })
-            .catch(error => {
-                console.error('Error fetching reader data:', error);
-            });
-    }
+        let modalContent = document.createElement('div');
+        modalContent.classList.add("overlay-content");
 
-    function handleReaderData(data) {
-        let dataDiv = document.querySelector(".dataDiv");
-        dataDiv.innerHTML = '';
+        let modalText = document.createElement('p');
+        modalText.innerText = "Zmiana hasła";
 
-        let containerDiv = document.createElement('div');
-        containerDiv.classList.add('reader-container');
+        let inputText = document.createElement('input');
+        inputText.type = 'password';
+        inputText.placeholder = 'Nowe hasło';
 
-        let reader = data[0];
+        let repeatInputText = document.createElement('input');
+        repeatInputText.type = 'password';
+        repeatInputText.placeholder = 'Powtórz hasło';
 
-        let divElement = document.createElement('div');
-        divElement.innerHTML = `
-            <p>                       Imię: ${reader.firstName}</p>
-            <p class="clickable">     Nazwisko: ${reader.lastName}</p>
-            <p class="clickable">     Adres: ${reader.address}</p>
-            <p class="clickable">     Numer telefonu: ${reader.phoneNumber}</p>
-            <p>                       Numer karty: ${reader.libraryCardNumber}</p>
-            <p class="clickable">     Zmień hasło:</p>
-            `;
-
-        divElement.style.marginLeft = '10px';
-        containerDiv.appendChild(divElement);
-        dataDiv.appendChild(containerDiv);
-
-        divElement.querySelectorAll('p.clickable').forEach((clickableParagraph) => {
-            clickableParagraph.addEventListener('click', function () {
-                const clickedText = clickableParagraph.textContent.trim();
-                const propertyName = clickedText.split(':')[0].trim();
-                console.log('Kliknięto na: ', propertyName);
-
-                switch (propertyName) {
-                    case 'Nazwisko':
-                        openChangeModal("Zmiana nazwiska", "Nazwisko", changeReaderLastName, user_id);
-                        break;
-                    case 'Adres':
-                        openChangeModal("Zmiana adresu", "Adres", changeReaderAddress, user_id);
-                        break;
-                    case 'Numer telefonu':
-                        openChangeModal("Zmiana numeru telefonu", "Numer telefonu", changeReaderPhoneNumber, user_id);
-                        break;
-                    case 'Zmień hasło':
-                        openChangePasswordModal(reader.accountID, null);
-                        break;
-                    default:
-                        console.warn('Brak obsługi dla klikniętego tekstu.');
-                        break;
-                }
-            });
+        let modalNoButton = document.createElement('button');
+        modalNoButton.innerText = "Anuluj";
+        modalNoButton.addEventListener('click', function () {
+            document.body.removeChild(modalContainer);
         });
-        containerDiv.appendChild(divElement);
-        dataDiv.appendChild(containerDiv);
+
+        let modalYesButton = document.createElement('button');
+        modalYesButton.innerText = "Zmień";
+        modalYesButton.addEventListener('click', function () {
+            const newPassword1 = inputText.value;
+            const newPassword2 = repeatInputText.value;
+
+            if (newPassword1 === newPassword2) {
+                if (accountID !== null && email !== null) {
+                    changePassword(email, newPassword1)
+                        .then(r => { if(!r) alert("Hasło niezmienione. Hasło musi posiadać 8 znaków [A-Z][a-z][0-9][@#$%^&+=!.]"); });
+                }
+                if (accountID === null) {
+                    changePassword(email, newPassword1)
+                        .then(r => { if(!r) alert("Hasło niezmienione. Hasło musi posiadać 8 znaków [A-Z][a-z][0-9][@#$%^&+=!.]"); });
+                } else if (email === null) {
+                    changePasswordByID(accountID, newPassword1)
+                        .then(r => { if(!r) alert("Hasło niezmienione. Hasło musi posiadać 8 znaków [A-Z][a-z][0-9][@#$%^&+=!.]"); });
+                }
+                document.body.removeChild(modalContainer);
+            } else {
+                alert('Podane hasła nie są identyczne. Spróbuj ponownie.');
+            }
+        });
+
+        appendElementsToModal(modalContent, modalText, inputText, repeatInputText);
+        appendElementsToModal(modalContainer, modalContent, modalNoButton, modalYesButton);
+        document.body.appendChild(modalContainer);
+    }
+
+    function changePassword(email, password) {
+        return fetch(`/api/account/update/password/byemail?email=${email}&password=${password}`)
+            .then(response => response.json())
+            .catch(error => {
+                console.error('Błąd podczas zmiany hasła:', error);
+            });
+    }
+
+    function changePasswordByID(accountID, password) {
+        return fetch(`/api/account/update/password/byid?accountID=${accountID}&password=${password}`)
+            .then(response => response.json())
+            .catch(error => {
+                console.error('Błąd podczas zmiany hasła:', error);
+            });
     }
 
     function fetchCopyData(book) {
         fetch(`/api/copy/byid/book?bookID=${book.id}`)
             .then(response => response.json())
             .then(data => {
+                // Call a function to handle the retrieved data and update the additionalDiv1
                 handleCopyData(data,book);
             })
             .catch(error => {
@@ -2088,7 +2178,7 @@ document.addEventListener("DOMContentLoaded", function () {
         containerDiv.appendChild(tytulDiv);
         let  i= 1;
         // Iterate through the data and create a div for each copy
-        data.forEach((copy, index) => {
+        data.forEach((copy) => {
             // Create a div element for each copy
             let divElement = document.createElement('div');
             // Add specific properties to the div
@@ -2103,7 +2193,7 @@ document.addEventListener("DOMContentLoaded", function () {
             containerDiv.appendChild(divElement);
             i+=1;
 
-            divElement.addEventListener("click", function (event) {
+            divElement.addEventListener("click", function () {
                 // Check if a copy element or its child is clicked
 
                 // Check if the copy is available for ordering
@@ -2226,9 +2316,12 @@ document.addEventListener("DOMContentLoaded", function () {
             func(param, userInput);
             document.body.removeChild(modalContainer);
             setTimeout(function () {
-                if(user_id) {
+                if(user_type==="emp") {
                     fetchEmployeeData(user_id);
-                }else if(user_type==="adm"){
+                }else if(user_type==="reader"){
+                    fetchReaderData();
+                }
+                else if(user_type==="adm"){
                     getAdminData();
                 }
             }, 1000); // Adjust the delay as needed
@@ -2242,6 +2335,26 @@ document.addEventListener("DOMContentLoaded", function () {
         document.body.appendChild(modalContainer);
     }
 
+    function addEmpButtonClick() {
+        let name = document.getElementById("emp-name").value.toLowerCase();
+        let lastName = document.getElementById("emp-lastName").value.toLowerCase();
+        let address = document.getElementById("emp-address").value.toLowerCase();
+        let phoneNum = document.getElementById("emp-phoneNum").value.toLowerCase();
+        let libraryID = document.getElementById("emp-libraryID").value.toLowerCase();
+
+        let encodedName = encodeURIComponent(name);
+        let encodedLastName = encodeURIComponent(lastName);
+        let encodedAddress = encodeURIComponent(address);
+        let encodedPhoneNum = encodeURIComponent(phoneNum);
+        let encodedLibraryID = encodeURIComponent(libraryID);
+
+        let email = removeDiacritics(name) + '.' + removeDiacritics(lastName) + '@employee.example.com';
+        let password = 'EMPLOYEE' + removeDiacritics(name) + '.' + removeDiacritics(lastName) + '1!';
+
+        createEmployeeAccount(email, password, encodedName, encodedLastName, encodedAddress, encodedPhoneNum, encodedLibraryID);
+    }
+
+
     function removeDiacritics(inputString) {
         const diacriticsMap = {
             'ą': 'a', 'ć': 'c', 'ę': 'e', 'ł': 'l', 'ń': 'n', 'ó': 'o', 'ś': 's', 'ź': 'z', 'ż': 'z',
@@ -2251,21 +2364,23 @@ document.addEventListener("DOMContentLoaded", function () {
         return inputString.replace(/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/g, match => diacriticsMap[match] || match);
     }
 
-    function addEmpButtonClick() {
-        let name = removeDiacritics(document.getElementById("name").value.toLowerCase());
-        let lastName = removeDiacritics(document.getElementById("lastName").value.toLowerCase());
-
-        let email = name + '.' + lastName + '@employee.example.com';
-        let password = 'EMPLOYEE' + name + '.' + lastName + '1!';
-
-        createEmployeeAccount(email, password);
-    }
-
-    function createEmployeeAccount(email, password) {
+    function createEmployeeAccount(email, password, firstName, lastName, address, phoneNumber, libraryID) {
         fetch(`/api/account/add?email=${email}&password=${password}`)
             .then(response => response.json())
+            .then(account => {
+                createEmployee(firstName, lastName, address, phoneNumber, libraryID, account.id);
+            })
             .catch(error => {
                 console.error('Błąd podczas tworzenia konta:', error);
+            });
+    }
+
+    function createEmployee(firstName, lastName, address, phoneNumber, libraryID, accountID) {
+        let position = "LIBRARIAN";
+        fetch(`/api/employee/add?firstName=${firstName}&lastName=${lastName}&address=${address}&phoneNumber=${phoneNumber}&position=${position}&libraryID=${libraryID}&accountID=${accountID}`)
+            .then(response => response.json())
+            .catch(error => {
+                console.error('Błąd podczas tworzenia czytelnika:', error);
             });
     }
 
@@ -2287,7 +2402,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let olElement = document.createElement('ol');
 
-        data.forEach((reader, index) => {
+        data.forEach((reader) => {
             let liElement = document.createElement('li');
             liElement.textContent += `${reader.firstName} `;
             liElement.textContent += `${reader.lastName}: `;
@@ -2383,7 +2498,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let olElement = document.createElement('ol');
 
-        data.forEach((employee, index) => {
+        data.forEach((employee) => {
             getLibraryName(employee.libraryID)
                 .then(libraryArray => {
                     if (libraryArray && libraryArray.length > 0) {
@@ -2469,97 +2584,11 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    function openChangePasswordModal(accountID, email) {
-        let modalContainer = document.createElement('div');
-        modalContainer.classList.add("overlay");
-
-        let modalContent = document.createElement('div');
-        modalContent.classList.add("overlay-content");
-
-        let modalText = document.createElement('p');
-        modalText.innerText = "Zmiana hasła";
-
-        let inputText = document.createElement('input');
-        inputText.type = 'password';
-        inputText.placeholder = 'Nowe hasło';
-
-        let repeatInputText = document.createElement('input');
-        repeatInputText.type = 'password';
-        repeatInputText.placeholder = 'Powtórz hasło';
-
-        let modalNoButton = document.createElement('button');
-        modalNoButton.innerText = "Anuluj";
-        modalNoButton.addEventListener('click', function () {
-            document.body.removeChild(modalContainer);
-        });
-
-        let modalYesButton = document.createElement('button');
-        modalYesButton.innerText = "Zmień";
-        modalYesButton.addEventListener('click', function () {
-            const newPassword1 = inputText.value;
-            const newPassword2 = repeatInputText.value;
-
-            if (newPassword1 === newPassword2) {
-                if (accountID !== null && email !== null) {
-                    changePassword(email, newPassword1)
-                        .then(r => { if(!r) alert("Hasło niezmienione. Hasło musi posiadać 8 znaków [A-Z][a-z][0-9][@#$%^&+=!.]"); });
-                }
-                if (accountID === null) {
-                    changePassword(email, newPassword1)
-                        .then(r => { if(!r) alert("Hasło niezmienione. Hasło musi posiadać 8 znaków [A-Z][a-z][0-9][@#$%^&+=!.]"); });
-                } else if (email === null) {
-                    changePasswordByID(accountID, newPassword1)
-                        .then(r => { if(!r) alert("Hasło niezmienione. Hasło musi posiadać 8 znaków [A-Z][a-z][0-9][@#$%^&+=!.]"); });
-                }
-                document.body.removeChild(modalContainer);
-            } else {
-                alert('Podane hasła nie są identyczne. Spróbuj ponownie.');
-            }
-        });
-
-        appendElementsToModal(modalContent, modalText, inputText, repeatInputText);
-        appendElementsToModal(modalContainer, modalContent, modalNoButton, modalYesButton);
-        document.body.appendChild(modalContainer);
-    }
-
-    function createModalContainer() {
-        let modalContainer = document.createElement('div');
-        modalContainer.classList.add('modal-container');
-        return modalContainer;
-    }
-
-    function createModalContent() {
-        let modalContent = document.createElement('div');
-        modalContent.classList.add('modal-content');
-        return modalContent;
-    }
-
-    function createModalText(info) {
-        let modalText = document.createElement('p');
-        modalText.innerText = info;
-        return modalText;
-    }
-
-    function createModalButton(text) {
-        let modalButton = document.createElement('button');
-        modalButton.classList.add('modal-button');
-        modalButton.innerText = text;
-        return modalButton;
-    }
-
-    function createModalInput(placeholder) {
-        let input = document.createElement('input');
-        input.classList.add('modal-input');
-        input.type = 'password';
-        input.placeholder = placeholder;
-        return input;
-    }
-
     function appendElementsToModal(modalContainer, ...elements) {
         elements.forEach(element => modalContainer.appendChild(element));
     }
-});
 
+});
 
 // Save the current state in sessionStorage
 function saveState() {
@@ -2579,8 +2608,11 @@ function loadState() {
 
 function applyState(state) {
     if (state) {
-       user_id=(state.user_id);
+        // Apply the saved user_id and user_type
+        // Replace setUserId and setUserType with the actual functions to set user_id and user_type
+        user_id=(state.user_id);
         user_type=(state.user_type);
+        // Apply the saved content to additionalDiv1
         document.querySelector('.additional-div1').innerHTML = state.additionalDiv1Content;
     }
 

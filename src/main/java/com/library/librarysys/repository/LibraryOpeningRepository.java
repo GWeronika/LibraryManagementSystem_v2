@@ -1,6 +1,7 @@
 package com.library.librarysys.repository;
 
 import com.library.librarysys.entity.LibraryOpening;
+import com.library.librarysys.entity.Opening;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.domain.Specification;

@@ -286,6 +286,20 @@ i{
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Cień dla efektu warstwy */
 }
 
+.overlay-content-column{
+	display: flex;
+	flex-direction: column; /* Zmiana na kierunek wiersza */
+	align-items: center;
+	justify-content: space-around;
+	width: 40%;
+	padding: 15px;
+	padding-bottom: 30px;
+	background-color: white;
+	border-radius: 5px;
+	text-align: center;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
 .overlay-content button{
 	background-color: #1E1E1E;
 	border-radius: 2px;
@@ -604,3 +618,24 @@ button:hover {
 	color: white;
 	width: 15%;
 }
+
+.inputyDiv{
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.inputyDiv input{
+	padding: 10px;
+	margin: 10px;
+}
+
+.inputyDiv button{
+	background-color: #1E1E1E;
+	border-radius: 2px;
+	color: white;
+	padding: 10px;
+	margin: 5px;
+}
+

@@ -1,5 +1,6 @@
 package com.library.librarysys.service;
 
+import com.library.librarysys.entity.Library;
 import com.library.librarysys.entity.LibraryOpening;
 import com.library.librarysys.entity.Opening;
 import com.library.librarysys.repository.LibraryOpeningRepository;
@@ -16,11 +17,13 @@ import java.util.List;
 public class LibraryOpeningService {
     private final LibraryOpeningRepository libraryOpeningRepository;
     private final OpeningService openingService;
+    private final LibraryService libraryService;
 
     @Autowired
-    public LibraryOpeningService(LibraryOpeningRepository libraryOpeningRepository, OpeningService openingService) {
+    public LibraryOpeningService(LibraryOpeningRepository libraryOpeningRepository, OpeningService openingService, LibraryService libraryService) {
         this.libraryOpeningRepository = libraryOpeningRepository;
         this.openingService = openingService;
+        this.libraryService = libraryService;
     }
 
     public List<LibraryOpening> getByLibraryOpening(Long libraryID, Long openingID) {
@@ -92,7 +95,13 @@ public class LibraryOpeningService {
     }
 
     private boolean isOpeningConnected(Long openingID) {
-        List<LibraryOpening> libraryOpenings = getByLibraryOpening(null, openingID);
-        return !libraryOpenings.isEmpty();
+        List<Library> libraries = libraryService.getLibraries();
+        for (Library library : libraries) {
+            List<LibraryOpening> libraryOpenings = getByLibraryOpening(library.getId(), openingID);
+            if (!libraryOpenings.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 }
