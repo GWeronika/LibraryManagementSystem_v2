@@ -53,10 +53,15 @@ public class LibraryOpeningService {
                 throw new IllegalArgumentException("Niepoprawne dane.");
             }
 
-            Opening existingOpening = openingService.findOpening(day, openHour, closeHour).get(0);
-            if (existingOpening == null) {
+            Opening existingOpening;
+            List<Opening> existingOpenings = openingService.findOpening(day, openHour, closeHour);
+
+            if (existingOpenings.isEmpty()) {
                 existingOpening = openingService.addOpening(day, openHour, closeHour);
+            } else {
+                existingOpening = existingOpenings.get(0);
             }
+
             List<LibraryOpening> existingLibraryOpenings = libraryOpeningRepository.findByLOID(libraryID, existingOpening.getId());
 
             if (existingLibraryOpenings.isEmpty()) {
@@ -72,21 +77,52 @@ public class LibraryOpeningService {
         }
     }
 
-    public boolean deleteLibraryOpening(Long libraryID, Long openingID) {
-        try {
-            List<LibraryOpening> libraryOpenings = libraryOpeningRepository.findByLOID(libraryID, openingID);
-            if (!libraryOpenings.isEmpty()) {
-                libraryOpeningRepository.deleteLibraryOpeningByID(libraryID, openingID);
-                System.out.println("Połączenie usunięte");
 
-                if (!isOpeningConnected(openingID)) {
-                    openingService.deleteOpeningById(openingID);
-                    System.out.println("Otwarcie usunięte");
+//    public boolean deleteLibraryOpening(Long libraryID, Long openingID) {
+//        try {
+//            List<LibraryOpening> libraryOpenings = libraryOpeningRepository.findByLOID(libraryID, openingID);
+//            if (!libraryOpenings.isEmpty()) {
+//                libraryOpeningRepository.deleteLibraryOpeningByID(libraryID, openingID);
+//                System.out.println("Połączenie usunięte");
+//
+//                if (!isOpeningConnected(openingID)) {
+//                    openingService.deleteOpeningById(openingID);
+//                    System.out.println("Otwarcie usunięte");
+//                }
+//                return true;
+//            } else {
+//                System.out.println("Błąd podczas usuwania połączenia");
+//                throw new RuntimeException("Połączenie o podanym libraryID " + libraryID + " lub openingID " + openingID + " nie znalezione");
+//            }
+//        } catch (Exception e) {
+//            System.err.println("Błąd podczas usuwania połączenia: " + e.getMessage());
+//            throw e;
+//        }
+//    }
+
+    public boolean deleteLibraryOpening(Long libraryID, Opening.Day day) {
+        try {
+            List<LibraryOpening> libraryOpenings = libraryOpeningRepository.findByLibraryID(libraryID);
+            if (!libraryOpenings.isEmpty()) {
+                boolean isOpeningWithGivenDayFound = false;
+                for (LibraryOpening libraryOpening : libraryOpenings) {
+                    Long openingID = libraryOpening.getId().getOpeningID();
+                    Opening opening = openingService.getByID(openingID).get(0);
+                    if (opening.getDay() == day) {
+                        isOpeningWithGivenDayFound = true;
+                        libraryOpeningRepository.deleteLibraryOpeningByID(libraryID, openingID);
+                        System.out.println("Połączenie usunięte");
+
+                        if (!isOpeningConnected(openingID)) {
+                            openingService.deleteOpeningById(openingID);
+                            System.out.println("Otwarcie usunięte");
+                        }
+                    }
                 }
+                if(isOpeningWithGivenDayFound) return true;
                 return true;
             } else {
-                System.out.println("Błąd podczas usuwania połączenia");
-                throw new RuntimeException("Połączenie o podanym libraryID " + libraryID + " lub openingID " + openingID + " nie znalezione");
+                return true;
             }
         } catch (Exception e) {
             System.err.println("Błąd podczas usuwania połączenia: " + e.getMessage());

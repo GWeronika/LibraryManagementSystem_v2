@@ -375,10 +375,6 @@ document.addEventListener("DOMContentLoaded", function () {
         mojeDaneDiv.classList.add("option");
         mojeDaneDiv.textContent = "Moje Dane";
 
-        let edycjaDanychDiv = document.createElement("div");
-        edycjaDanychDiv.classList.add("option");
-        edycjaDanychDiv.textContent = "Edycja Danych";
-
         let zamowieniaDiv = document.createElement("div");
         zamowieniaDiv.classList.add("option");
         zamowieniaDiv.textContent = "Zamówienia";
@@ -392,7 +388,6 @@ document.addEventListener("DOMContentLoaded", function () {
         usunDiv.textContent = "Usuń konto";
 
         optionsDiv.appendChild(mojeDaneDiv);
-        optionsDiv.appendChild(edycjaDanychDiv);
         optionsDiv.appendChild(zamowieniaDiv);
         optionsDiv.appendChild(wypozyczeniaDiv);
         optionsDiv.appendChild(usunDiv);
@@ -412,6 +407,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
         mojeDaneDiv.addEventListener("click", function () {
             fetchReaderData();
+        });
+
+        usunDiv.addEventListener("click", function () {
+            let modalContainer = document.createElement('div');
+            modalContainer.classList.add("overlay");
+            let modalContent = document.createElement('div');
+            modalContent.classList.add("overlay-content");
+            let modalText = document.createElement('p');
+            modalText.innerText =`Czy na pewno chcesz usunąć swoje konto?`;
+            let modalNoButton = document.createElement('button');
+            modalNoButton.innerText = 'Nie';
+            let modalYesButton = document.createElement('button');
+            modalYesButton.innerText = 'Tak';
+
+            modalContent.appendChild(modalText);
+            modalContent.appendChild(modalNoButton);
+            modalContent.appendChild(modalYesButton);
+            modalContainer.appendChild(modalContent);
+            document.body.appendChild(modalContainer);
+
+
+            modalNoButton.addEventListener('click', function() {
+                document.body.removeChild(modalContainer);
+            });
+            modalYesButton.addEventListener('click', function() {
+                usunKonto();
+                user_id=null;
+                user_type=null;
+                location.reload();
+            });
         });
     }
 
@@ -597,6 +622,10 @@ document.addEventListener("DOMContentLoaded", function () {
         bibliotekiDiv.classList.add("option");
         bibliotekiDiv.textContent = "Biblioteki";
 
+        let otwarciaDiv = document.createElement('div');
+        otwarciaDiv.classList.add("option");
+        otwarciaDiv.textContent = "Dodaj otwarcie";
+
         let dailyOverdueCostDiv = document.createElement("div");
         dailyOverdueCostDiv.classList.add("option");
         dailyOverdueCostDiv.textContent = "Kary";
@@ -606,6 +635,7 @@ document.addEventListener("DOMContentLoaded", function () {
         optionsDiv.appendChild(pracownicyDiv);
         optionsDiv.appendChild(czytelnicyDiv);
         optionsDiv.appendChild(bibliotekiDiv);
+        optionsDiv.appendChild(otwarciaDiv);
         optionsDiv.appendChild(dailyOverdueCostDiv);
         additionalDiv1.appendChild(optionsDiv);
 
@@ -618,6 +648,10 @@ document.addEventListener("DOMContentLoaded", function () {
         mojeDaneDiv.addEventListener("click", function () {
             getAdminData();
         });
+
+        otwarciaDiv.addEventListener("click", function () {
+            addOpeningForm();
+        })
 
         dodaniePracDiv.addEventListener("click", function () {
             let underHelloText = document.querySelector(".dataDiv");
@@ -775,7 +809,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let olElement = document.createElement('ol');
 
-        let selectedOpening = null;
         data.forEach((library) => {
             let liElement = document.createElement('li');
             liElement.textContent += `${library.name}: `;
@@ -788,7 +821,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     .then(openingsData => {
                         let openingsList = openingsData.map(openingArray => {
                             if (openingArray && openingArray.length > 0) {
-                                let opening = openingArray[0];      //ten opening
+                                let opening = openingArray[0];
                                 if (opening.day && opening.openHour && opening.closeHour) {
                                     return `<li>${opening.day}: ${opening.openHour} - ${opening.closeHour}</li>`;
                                 } else {
@@ -807,75 +840,75 @@ document.addEventListener("DOMContentLoaded", function () {
                         modalContent.classList.add("overlay-content");
 
                         // Create an unordered list and append each opening time as a list item
-                        let modalList = document.createElement('ul');
-                        modalList.innerHTML = openingsList;
+                        // let modalList = document.createElement('ul');
+                        // modalList.innerHTML = openingsList;
 
-                        modalList.querySelectorAll("li").forEach((opening, index) => {
-                            selectedOpening = openingsData[index];
-                            addEventListener('click', function () {
-                                let secondModalContainer = document.createElement('div');
-                                secondModalContainer.classList.add("overlay");
-                                let secondModalContent = document.createElement('div');
-                                secondModalContent.classList.add("overlay-content-column");
-                                let secondModalTitle = document.createElement('h2');
-                                secondModalTitle.innerText = `Edytuj godziny otwarcia:`;
-                                secondModalContent.appendChild(secondModalTitle);
-
-                                let inputyDiv = document.createElement("div");
-                                let modalInputOpen = document.createElement('input');
-                                let modalInputClose = document.createElement('input');
-                                modalInputOpen.type = 'text';
-                                modalInputClose.type = 'text';
-                                modalInputOpen.placeholder = 'HH:MM';
-                                modalInputClose.placeholder = 'HH:MM';
-
-                                secondModalContent.appendChild(inputyDiv);
-                                inputyDiv.appendChild(modalInputOpen);
-                                inputyDiv.appendChild(modalInputClose);
-                                inputyDiv.classList.add("inputyDiv");
-
-                                let buttonsDiv = document.createElement("div");
-                                let modalSaveButton = createMButton('Zapisz');
-                                let modalCancelButton = createMButton('Anuluj');
-                                let modalDeleteButton = createMButton('Usuń');
-                                secondModalContent.appendChild(buttonsDiv);
-                                buttonsDiv.appendChild(modalSaveButton);
-                                buttonsDiv.appendChild(modalCancelButton);
-                                buttonsDiv.appendChild(modalDeleteButton);
-                                buttonsDiv.classList.add("inputyDiv");
-
-                                secondModalContainer.appendChild(secondModalContent);
-                                document.body.appendChild(secondModalContainer);
-
-                                if (selectedOpening.length > 0) {
-                                    const firstOpening = selectedOpening[0];
-
-                                    const theId = firstOpening.id;
-                                    const theDay = firstOpening.day;
-
-                                modalSaveButton.addEventListener('click', function () {
-                                    modalInputOpen = modalInputOpen.trim();
-                                    modalInputClose = modalInputOpen.trim();
-                                    addLibraryOpening(library.id, theId, theDay, modalInputOpen, modalInputClose);
-                                    secondModalContainer.remove();
-                                });
-
-                                modalCancelButton.addEventListener('click', function () {
-                                    console.log('Kliknięto Anuluj');
-                                    secondModalContainer.remove();
-                                });
-
-                                modalDeleteButton.addEventListener('click', function () {
-                                    console.log("SELECTED", selectedOpening);
-                                    deleteLibraryOpening(library.id, theId)
-                                        .then(bool => { if(!bool) alert("Otwarcie nie zostało usunięte"); })
-                                    secondModalContainer.remove();
-                                });
-                                } else {
-                                    console.error('selectedOpenings is empty.');
-                                }
-                            });
-                        });
+                        // modalList.querySelectorAll("li").forEach((opening, index) => {
+                        //     selectedOpening = openingsData[index];
+                        //     addEventListener('click', function () {
+                        //         let secondModalContainer = document.createElement('div');
+                        //         secondModalContainer.classList.add("overlay");
+                        //         let secondModalContent = document.createElement('div');
+                        //         secondModalContent.classList.add("overlay-content-column");
+                        //         let secondModalTitle = document.createElement('h2');
+                        //         secondModalTitle.innerText = `Edytuj godziny otwarcia:`;
+                        //         secondModalContent.appendChild(secondModalTitle);
+                        //
+                        //         let inputyDiv = document.createElement("div");
+                        //         let modalInputOpen = document.createElement('input');
+                        //         let modalInputClose = document.createElement('input');
+                        //         modalInputOpen.type = 'text';
+                        //         modalInputClose.type = 'text';
+                        //         modalInputOpen.placeholder = 'HH:MM';
+                        //         modalInputClose.placeholder = 'HH:MM';
+                        //
+                        //         secondModalContent.appendChild(inputyDiv);
+                        //         inputyDiv.appendChild(modalInputOpen);
+                        //         inputyDiv.appendChild(modalInputClose);
+                        //         inputyDiv.classList.add("inputyDiv");
+                        //
+                        //         let buttonsDiv = document.createElement("div");
+                        //         let modalSaveButton = createMButton('Zapisz');
+                        //         let modalCancelButton = createMButton('Anuluj');
+                        //         let modalDeleteButton = createMButton('Usuń');
+                        //         secondModalContent.appendChild(buttonsDiv);
+                        //         buttonsDiv.appendChild(modalSaveButton);
+                        //         buttonsDiv.appendChild(modalCancelButton);
+                        //         buttonsDiv.appendChild(modalDeleteButton);
+                        //         buttonsDiv.classList.add("inputyDiv");
+                        //
+                        //         secondModalContainer.appendChild(secondModalContent);
+                        //         document.body.appendChild(secondModalContainer);
+                        //
+                        //         if (selectedOpening.length > 0) {
+                        //             const firstOpening = selectedOpening[0];
+                        //
+                        //             const theId = firstOpening.id;
+                        //             const theDay = firstOpening.day;
+                        //
+                        //         modalSaveButton.addEventListener('click', function () {
+                        //             modalInputOpen = modalInputOpen.trim();
+                        //             modalInputClose = modalInputOpen.trim();
+                        //             addLibraryOpening(library.id, theId, theDay, modalInputOpen, modalInputClose);
+                        //             secondModalContainer.remove();
+                        //         });
+                        //
+                        //         modalCancelButton.addEventListener('click', function () {
+                        //             console.log('Kliknięto Anuluj');
+                        //             secondModalContainer.remove();
+                        //         });
+                        //
+                        //         modalDeleteButton.addEventListener('click', function () {
+                        //             console.log("SELECTED", selectedOpening);
+                        //             deleteLibraryOpening(library.id, theId)
+                        //                 .then(bool => { if(!bool) alert("Otwarcie nie zostało usunięte"); })
+                        //             secondModalContainer.remove();
+                        //         });
+                        //         } else {
+                        //             console.error('selectedOpenings is empty.');
+                        //         }
+                        //     });
+                        // });
 
                         modalContent.appendChild(modalList);
                         modalContainer.appendChild(modalContent);
@@ -890,17 +923,111 @@ document.addEventListener("DOMContentLoaded", function () {
         dataDiv.appendChild(olElement);
     }
 
-    function deleteLibraryOpening(libraryID, openingID) {
-        return fetch(`/api/libopening/delete?libraryID=${libraryID}&openingID=${openingID}`)
+    function getLibrariesData() {
+        return fetch(`/api/library/all`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Błąd HTTP. Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .catch(error => {
+                console.error('Błąd podczas pobierania bibliotek:', error);
+                throw error;
+            });
+    }
+
+    function addOpeningForm() {
+        let modalContainer = document.createElement('div');
+        modalContainer.classList.add("overlay");
+        let modalContent = document.createElement('div');
+        modalContent.classList.add("overlay-content");
+        let modalText = document.createElement('p');
+        modalText.innerText =`Zmień godziny otwarcia`;
+
+        let librarySelect = document.createElement('select');
+        let libraryName = ['Filia Czyżyny', 'Filia Śródmieście', 'Filia Bronowice', 'Filia Grzegórzki', 'Filia Krowodrza'];
+        let libraryDATA = [1, 2, 3, 4, 5];
+        for (let i = 0; i < 5; i++) {
+            let option = document.createElement('option');
+            option.value = libraryDATA[i];
+            option.text = libraryName[i];
+            librarySelect.appendChild(option);
+        }
+        document.body.appendChild(librarySelect);
+        // let libraries = [];
+        // getLibrariesData()
+        //     .then(data => {
+        //         for (let i = 0; i < data.length; i++) {
+        //             libraries.push(data[i]);
+        //         }
+        //         for(let i = 0; i < libraries.length; i++) {
+        //             let option = document.createElement('option');
+        //             option.value = libraries[i].id;
+        //             option.text = libraries[i].name;
+        //
+        //             librarySelect.appendChild(option);
+        //         }
+        //         document.body.appendChild(librarySelect);
+        //     })
+        //     .catch(error => {
+        //         console.error('Wystąpił błąd podczas pobierania danych:', error);
+        //     });
+        // document.body.appendChild(librarySelect);
+
+        let daySelect = document.createElement('select');
+        let daysOfWeek = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
+        for (let i = 0; i < daysOfWeek.length; i++) {
+            let option = document.createElement('option');
+            option.value = daysOfWeek[i];
+            option.text = daysOfWeek[i];
+            daySelect.appendChild(option);
+        }
+        document.body.appendChild(daySelect);
+
+        let openHour = document.createElement('input');
+        openHour.type = 'time';
+        let closeHour = document.createElement('input');
+        closeHour.type = 'time';
+
+        let modalNoButton = document.createElement('button');
+        modalNoButton.innerText = 'Anuluj';
+        let modalYesButton = document.createElement('button');
+        modalYesButton.innerText = 'Zapisz';
+
+        modalContent.appendChild(modalText);
+        modalContent.appendChild(librarySelect);
+        modalContent.appendChild(daySelect);
+        modalContent.appendChild(openHour);
+        modalContent.appendChild(closeHour);
+        modalContent.appendChild(modalNoButton);
+        modalContent.appendChild(modalYesButton);
+        modalContainer.appendChild(modalContent);
+        document.body.appendChild(modalContainer);
+
+        modalNoButton.addEventListener('click', function() {
+            document.body.removeChild(modalContainer);
+        });
+        modalYesButton.addEventListener('click', function() {
+            addLibraryOpening(librarySelect, daySelect, openHour, closeHour);
+        });
+    }
+
+    function deleteLibraryOpening(libraryID, day) {
+        return fetch(`/api/libopening/delete?libraryID=${libraryID}&day=${day}`)
             .then(response => response.json())
             .catch(error => console.error('Błąd podczas usuwania połączenia:', error));
     }
 
-    function addLibraryOpening(libraryID, openingID, day, openHour, closeHour) {
-        deleteLibraryOpening(libraryID, openingID)
+    function addLibraryOpening(libraryID, day, openHour, closeHour) {
+        const libID = libraryID.value;
+        const openDay = day.value;
+        const openinghour = openHour.value;
+        const closingHour = closeHour.value;
+        deleteLibraryOpening(libID, openDay)
             .then(bool => {
                 if(bool) {
-                    fetch(`/api/libopening/add?libraryID=${libraryID}&day=${day}&openHour=${openHour}&closeHour=${closeHour}`)
+                    fetch(`/api/libopening/add?libraryID=${libID}&day=${openDay}&openHour=${openinghour}&closeHour=${closingHour}`)
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error(`Błąd HTTP. Status: ${response.status}`);
@@ -1049,7 +1176,10 @@ document.addEventListener("DOMContentLoaded", function () {
         let email = document.getElementById("emailPass").value;
         let password = document.getElementById("forgotPassword").value;
 
-        changePassword(email, password);
+        changePassword(email, password)
+            .then(bool => {
+                if(bool === false) alert("Hasło nie zostało zmienione");
+            })
         let overlay = document.getElementsByClassName("overlay");
         overlay.remove();
     }
@@ -1999,9 +2129,9 @@ document.addEventListener("DOMContentLoaded", function () {
         let divElement = document.createElement('div');
         divElement.innerHTML = `
             <p>     Imię: ${reader.firstName}</p>
-            <p>     Nazwisko: ${reader.lastName}</p>
-            <p>     Adres: ${reader.address}</p>
-            <p>     Numer telefonu: ${reader.phoneNumber}</p>
+            <p class="clickable">     Nazwisko: ${reader.lastName}</p>
+            <p class="clickable">     Adres: ${reader.address}</p>
+            <p class="clickable">     Numer telefonu: ${reader.phoneNumber}</p>
             <p>     Numer karty: ${reader.libraryCardNumber}</p>
              <p class="clickable">     Zmień hasło:</p>
         `;
@@ -2137,7 +2267,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return fetch(`/api/account/update/password/byemail?email=${email}&password=${password}`)
             .then(response => response.json())
             .catch(error => {
-                console.error('Błąd podczas zmiany hasła:', error);
+                alert('Błąd podczas zmiany hasła:', error);
             });
     }
 
@@ -2145,7 +2275,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return fetch(`/api/account/update/password/byid?accountID=${accountID}&password=${password}`)
             .then(response => response.json())
             .catch(error => {
-                console.error('Błąd podczas zmiany hasła:', error);
+                alert('Błąd podczas zmiany hasła:', error);
             });
     }
 
@@ -2188,7 +2318,7 @@ document.addEventListener("DOMContentLoaded", function () {
             divElement.textContent += `Format: ${copy.format}, `;
             divElement.textContent += `Język: ${copy.language}, `;
             divElement.textContent += `Status: ${copy.status}, `;
-            divElement.textContent += `ID Filii: ${copy.libraryID}. `;
+            divElement.textContent += `Filia: ${copy.libraryID}. `;
             // Append the div to the container
             containerDiv.appendChild(divElement);
             i+=1;
@@ -2450,6 +2580,23 @@ document.addEventListener("DOMContentLoaded", function () {
             olElement.appendChild(liElement);
         });
         dataDiv.appendChild(olElement);
+    }
+
+    function usunKonto(){
+        fetch(`/api/reader/byid?readerID=${user_id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    accountID = data[0].accountID;
+                    console.log("Account ID:", accountID);
+                    deleteReaderAndAccount([user_id, accountID]);
+                } else {
+                    console.log("Tablica danych jest pusta.");
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching reader data:', error);
+            });
     }
 
     function deleteReaderAndAccount(params) {

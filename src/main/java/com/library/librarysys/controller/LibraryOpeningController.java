@@ -33,7 +33,7 @@ public class LibraryOpeningController {
     }
 
     @GetMapping("/delete")
-    public boolean deleteLibraryOpening(Long libraryID, Long openingID) {
-        return libraryOpeningService.deleteLibraryOpening(libraryID, openingID);
+    public boolean deleteLibraryOpening(Long libraryID, Opening.Day day) {
+        return libraryOpeningService.deleteLibraryOpening(libraryID, day);
     }
 }
