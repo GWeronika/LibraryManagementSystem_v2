@@ -184,6 +184,7 @@ body {
 	overflow: hidden;
 	box-shadow: 1px 1px 1px 1px #888888;
 	margin-bottom: 15%;
+	padding: 15px;
 }
 
 .dataDiv p{

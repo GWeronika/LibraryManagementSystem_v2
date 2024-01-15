@@ -44,6 +44,25 @@ document.addEventListener("DOMContentLoaded", function () {
         initializeLoginButton();
     });
 
+    function getLibraryDataById(libraryId) {
+        return getLibrariesData()
+            .then(libraries => {
+                const selectedLibrary = libraries.find(library => library.id === libraryId);
+
+                if (selectedLibrary) {
+                    console.log("Dane dla biblioteki o ID", libraryId, ":", selectedLibrary);
+                    return selectedLibrary; // Zwraca dane znalezionej biblioteki
+                } else {
+                    console.error("Nie znaleziono biblioteki o ID", libraryId);
+                    throw new Error("Nie znaleziono biblioteki o podanym ID");
+                }
+            })
+            .catch(error => {
+                console.error('Błąd podczas pobierania danych o bibliotekach:', error);
+                throw error;
+            });
+    }
+
     let kontaktPage = document.querySelector(".kontakt");
     kontaktPage.addEventListener("click", function () {
         // Create overlay div
@@ -54,20 +73,20 @@ document.addEventListener("DOMContentLoaded", function () {
         let contentDiv = document.createElement("div");
         contentDiv.classList.add("overlay-content");
         contentDiv.innerHTML = `
-        <h2>Wybierz filię</h2>
-        <div class="location-list">
-            <div class="selected-location">
-                Wybierz z listy <i class="fa-solid fa-caret-down"></i>
-            </div>
-            <div class="all-locations">
-                <div>Filia Czyżyny</div>
-                <div>Filia Śródmieście</div>
-                <div>Filia Bronowice</div>
-                <div>Filia Grzegórzki</div>
-                <div>Filia Krowodrza</div>
-            </div>
+    <h2>Wybierz filię</h2>
+    <div class="location-list">
+        <div class="selected-location">
+            Wybierz z listy <i class="fa-solid fa-caret-down"></i>
         </div>
-    `;
+        <div class="all-locations">
+            <div data-location="Czyżyny">Filia Czyżyny</div>
+            <div data-location="Śródmieście">Filia Śródmieście</div>
+            <div data-location="Bronowice">Filia Bronowice</div>
+            <div data-location="Grzegórzki">Filia Grzegórzki</div>
+            <div data-location="Krowodrza">Filia Krowodrza</div>
+        </div>
+    </div>
+`;
 
         overlayDiv.appendChild(contentDiv);
         document.body.appendChild(overlayDiv);
@@ -84,11 +103,83 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
+        // Add event listener for location selection
+        allLocations.addEventListener("click", function (event) {
+            if (event.target.dataset.location) {
+                let selectedLocation = event.target.dataset.location;
+                // Handle the selected location, e.g., open another overlay
+                openLocationOverlay(selectedLocation);
+            }
+        });
+
+// Function to get libraryID based on the selected location
+        function getLibraryID(selectedLocation) {
+            // You can customize this function based on your specific logic
+            // For now, let's assume a simple mapping where the first location has libraryID 1, the second has libraryID 2, and so on.
+            const locationList = Array.from(allLocations.children);
+            const index = locationList.findIndex(locationElement => locationElement.dataset.location === selectedLocation);
+
+            // Adding 1 to index to get libraryID (assuming indexing starts from 0)
+            return index + 1;
+        }
+
         overlayDiv.addEventListener("click", function (event) {
             if (!contentDiv.contains(event.target)) {
                 overlayDiv.remove();
             }
         });
+
+        // Function to open another overlay based on the selected location
+        function openLocationOverlay(location) {
+            contentDiv.remove();
+            // Create and display another overlay with location-specific content
+            let locationOverlayDiv = document.createElement("div");
+            locationOverlayDiv.classList.add("overlay-content-column");
+
+            let selectedLocation = event.target.dataset.location;
+            let libraryID = getLibraryID(selectedLocation);
+
+            // Fetch opening data and library data concurrently
+            Promise.all([fetchLibraryOpeningData(libraryID), getLibraryDataById(libraryID)])
+                .then(([openingsData, libraryData]) => {
+                    // Handle opening data
+                    let openingsList = openingsData.map(openingArray => {
+                        if (openingArray && openingArray.length > 0) {
+                            let opening = openingArray[0];
+                            if (opening.day && opening.openHour && opening.closeHour) {
+                                return `<li>${opening.day}: ${opening.openHour} - ${opening.closeHour}</li>`;
+                            } else {
+                                console.log("Nieprawidłowe dane otwarcia:", opening);
+                                return "<li>Nieprawidłowe dane otwarcia</li>";
+                            }
+                        } else {
+                            console.log("Nieprawidłowe dane otwarcia: brak danych");
+                            return "<li>Nieprawidłowe dane otwarcia</li>";
+                        }
+                    }).join('');
+
+                    // Create an unordered list and append each opening time as a list item
+                    let modalList = document.createElement('ul');
+                    modalList.innerHTML = openingsList;
+                    locationOverlayDiv.innerHTML = `<h2>Godziny otwarcia biblioteki ${location}</h2>`;
+                    locationOverlayDiv.appendChild(modalList);
+
+                    // Handle library data
+                    let libraryDataDiv = document.createElement("div");
+                    libraryDataDiv.innerHTML = `
+                <h2>Dane kontaktowe:</h2>
+                <p>Adres: ${libraryData.location}</p>
+                <p>Numer telefonu: ${libraryData.phoneNum}</p>
+            `;
+                    locationOverlayDiv.appendChild(libraryDataDiv);
+
+                    // Add the constructed locationOverlayDiv to the overlayDiv
+                    overlayDiv.appendChild(locationOverlayDiv);
+                })
+                .catch(error => {
+                    console.error("Błąd:", error);
+                });
+        }
     });
 
     let katalog = document.getElementById("katalog");
@@ -283,7 +374,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 console.log(data);
                 if (data) {
-                    // let objectName;
+                   // let objectName;
                     user_id = data.id;
                     console.log(data.id);
 
@@ -384,7 +475,7 @@ document.addEventListener("DOMContentLoaded", function () {
         wypozyczeniaDiv.textContent = "Wypożyczenia";
 
         let usunDiv = document.createElement("div");
-        usunDiv.classList.add("option");
+       usunDiv.classList.add("option");
         usunDiv.textContent = "Usuń konto";
 
         optionsDiv.appendChild(mojeDaneDiv);
@@ -439,6 +530,24 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     }
+
+    function usunKonto(){
+        fetch(`/api/reader/byid?readerID=${user_id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    accountID = data[0].accountID;
+                    console.log("Account ID:", accountID);
+                    deleteReaderAndAccount([user_id, accountID]);
+                } else {
+                    console.log("Tablica danych jest pusta.");
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching reader data:', error);
+            });
+    }
+
 
     function showEmpAcc(user_id){
 
@@ -655,33 +764,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
         dodaniePracDiv.addEventListener("click", function () {
             let underHelloText = document.querySelector(".dataDiv");
+            underHelloText.classList.add("scroll");
             underHelloText.innerHTML = `
                 <div class="registration-form">
                   <h2>Dodaj nowego pracownika:</h2>
                   <div class="sections">
-                 
-                  <div class="section">
-                  <label for="emp-name">Imię</label>
-                  <input type="text" id="emp-name" name="emp-name" required>
-                  <label for="emp-lastName">Nazwisko</label>
-                  <input type="text" id="emp-lastName" name="emp-lastName" required>
-                  <label for="emp-libraryID">Biblioteka:</label>
+                    <div class="section">
+                    <label for="emp-name">Imię</label>
+                    <input type="text" id="emp-name" name="emp-name" required>
+                    <label for="emp-lastName">Nazwisko</label>
+                    <input type="text" id="emp-lastName" name="emp-lastName" required>
+                    <label for="emp-libraryID">Biblioteka:</label>
                     <select id="emp-libraryID" name="emp-libraryID">
                         <option value="1">Filia Wierzba</option>
                         <option value="2">Filia Dąb</option>
                         <option value="3">Filia Sosna</option>
                         <option value="4">Filia Jesion</option>
                         <option value="5">Filia Topola</option>
-                    </select>
+                    </select></div>
                     
                   <div class="section">
-                  <label for="emp-address">Adres</label>
-                  <input type="text" id="emp-address" name="emp-address" required>
-                  <label for="emp-phoneNum">Numer telefonu</label>
-                  <input type="text" id="emp-phoneNum" name="emp-phoneNum" required>
+                    <label for="emp-address">Adres</label>
+                     <input type="text" id="emp-address" name="emp-address" required>
+                     <label for="emp-phoneNum">Numer telefonu</label>
+                    <input type="text" id="emp-phoneNum" name="emp-phoneNum" required>
                   </div>
-                   
-\t\t\t\t  </div>
+                   </div>
                   <button type="submit" id="addButton">Dodaj</button>
                 </div>
               `;
@@ -840,8 +948,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         modalContent.classList.add("overlay-content");
 
                         // Create an unordered list and append each opening time as a list item
-                        // let modalList = document.createElement('ul');
-                        // modalList.innerHTML = openingsList;
+                         let modalList = document.createElement('ul');
+                        modalList.innerHTML = openingsList;
 
                         // modalList.querySelectorAll("li").forEach((opening, index) => {
                         //     selectedOpening = openingsData[index];
@@ -913,6 +1021,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         modalContent.appendChild(modalList);
                         modalContainer.appendChild(modalContent);
                         document.body.appendChild(modalContainer);
+
+                        modalContainer.addEventListener("click", function (event) {
+                            if (!modalContent.contains(event.target)) {
+                                modalContainer.remove();
+                            }
+                        });
+
                     })
                     .catch(error => {
                         console.error("Błąd podczas pobierania godzin otwarcia biblioteki", error);
@@ -922,6 +1037,15 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         dataDiv.appendChild(olElement);
     }
+
+
+    function deleteLibraryOpening(libraryID, day) {
+        return fetch(`/api/libopening/delete?libraryID=${libraryID}&day=${day}`)
+            .then(response => response.json())
+            .catch(error => console.error('Błąd podczas usuwania połączenia:', error));
+    }
+
+
 
     function getLibrariesData() {
         return fetch(`/api/library/all`)
@@ -935,88 +1059,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.error('Błąd podczas pobierania bibliotek:', error);
                 throw error;
             });
-    }
-
-    function addOpeningForm() {
-        let modalContainer = document.createElement('div');
-        modalContainer.classList.add("overlay");
-        let modalContent = document.createElement('div');
-        modalContent.classList.add("overlay-content");
-        let modalText = document.createElement('p');
-        modalText.innerText =`Zmień godziny otwarcia`;
-
-        let librarySelect = document.createElement('select');
-        let libraryName = ['Filia Czyżyny', 'Filia Śródmieście', 'Filia Bronowice', 'Filia Grzegórzki', 'Filia Krowodrza'];
-        let libraryDATA = [1, 2, 3, 4, 5];
-        for (let i = 0; i < 5; i++) {
-            let option = document.createElement('option');
-            option.value = libraryDATA[i];
-            option.text = libraryName[i];
-            librarySelect.appendChild(option);
-        }
-        document.body.appendChild(librarySelect);
-        // let libraries = [];
-        // getLibrariesData()
-        //     .then(data => {
-        //         for (let i = 0; i < data.length; i++) {
-        //             libraries.push(data[i]);
-        //         }
-        //         for(let i = 0; i < libraries.length; i++) {
-        //             let option = document.createElement('option');
-        //             option.value = libraries[i].id;
-        //             option.text = libraries[i].name;
-        //
-        //             librarySelect.appendChild(option);
-        //         }
-        //         document.body.appendChild(librarySelect);
-        //     })
-        //     .catch(error => {
-        //         console.error('Wystąpił błąd podczas pobierania danych:', error);
-        //     });
-        // document.body.appendChild(librarySelect);
-
-        let daySelect = document.createElement('select');
-        let daysOfWeek = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
-        for (let i = 0; i < daysOfWeek.length; i++) {
-            let option = document.createElement('option');
-            option.value = daysOfWeek[i];
-            option.text = daysOfWeek[i];
-            daySelect.appendChild(option);
-        }
-        document.body.appendChild(daySelect);
-
-        let openHour = document.createElement('input');
-        openHour.type = 'time';
-        let closeHour = document.createElement('input');
-        closeHour.type = 'time';
-
-        let modalNoButton = document.createElement('button');
-        modalNoButton.innerText = 'Anuluj';
-        let modalYesButton = document.createElement('button');
-        modalYesButton.innerText = 'Zapisz';
-
-        modalContent.appendChild(modalText);
-        modalContent.appendChild(librarySelect);
-        modalContent.appendChild(daySelect);
-        modalContent.appendChild(openHour);
-        modalContent.appendChild(closeHour);
-        modalContent.appendChild(modalNoButton);
-        modalContent.appendChild(modalYesButton);
-        modalContainer.appendChild(modalContent);
-        document.body.appendChild(modalContainer);
-
-        modalNoButton.addEventListener('click', function() {
-            document.body.removeChild(modalContainer);
-        });
-        modalYesButton.addEventListener('click', function() {
-            addLibraryOpening(librarySelect, daySelect, openHour, closeHour);
-        });
-    }
-
-    function deleteLibraryOpening(libraryID, day) {
-        return fetch(`/api/libopening/delete?libraryID=${libraryID}&day=${day}`)
-            .then(response => response.json())
-            .catch(error => console.error('Błąd podczas usuwania połączenia:', error));
     }
 
     function addLibraryOpening(libraryID, day, openHour, closeHour) {
@@ -1041,6 +1083,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             })
     }
+
+
 
     function createModalTimeInput(label, value) {
         let labelElement = document.createElement('label');
@@ -1176,10 +1220,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let email = document.getElementById("emailPass").value;
         let password = document.getElementById("forgotPassword").value;
 
-        changePassword(email, password)
-            .then(bool => {
-                if(bool === false) alert("Hasło nie zostało zmienione");
-            })
+        changePassword(email, password);
         let overlay = document.getElementsByClassName("overlay");
         overlay.remove();
     }
@@ -1594,7 +1635,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     let modalContainer = document.createElement('div');
                     modalContainer.classList.add("overlay");
                     let modalContent = document.createElement('div');
-                    modalContent.classList.add("overlay-content");
+                   modalContent.classList.add("overlay-content");
                     let modalText = document.createElement('p');
                     modalText.innerText =`Czy na pewno chcesz usunąć zamówienie ${order.id}?`;
                     let modalNoButton = document.createElement('button');
@@ -2133,7 +2174,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <p class="clickable">     Adres: ${reader.address}</p>
             <p class="clickable">     Numer telefonu: ${reader.phoneNumber}</p>
             <p>     Numer karty: ${reader.libraryCardNumber}</p>
-             <p class="clickable">     Zmień hasło:</p>
+            <p class="clickable">     Zmień hasło:</p>
         `;
         containerDiv.appendChild(divElement);
         dataDiv.appendChild(containerDiv);
@@ -2143,7 +2184,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 const clickedText = clickableParagraph.textContent.trim();
                 const propertyName = clickedText.split(':')[0].trim();
                 console.log('Kliknięto na: ', propertyName);
-
                 switch (propertyName) {
                     case 'Nazwisko':
                         openChangeModal("Zmiana nazwiska", "Nazwisko", changeReaderLastName, user_id);
@@ -2215,10 +2255,13 @@ document.addEventListener("DOMContentLoaded", function () {
         modalContainer.classList.add("overlay");
 
         let modalContent = document.createElement('div');
-        modalContent.classList.add("overlay-content");
+        modalContent.classList.add("overlay-content-column");
 
-        let modalText = document.createElement('p');
-        modalText.innerText = "Zmiana hasła";
+        let modalText = document.createElement('h2');
+        modalText.innerText = "Zmień hasło:";
+
+        let inputyDiv = document.createElement("div");
+        inputyDiv.classList.add("inputyDiv");
 
         let inputText = document.createElement('input');
         inputText.type = 'password';
@@ -2227,6 +2270,8 @@ document.addEventListener("DOMContentLoaded", function () {
         let repeatInputText = document.createElement('input');
         repeatInputText.type = 'password';
         repeatInputText.placeholder = 'Powtórz hasło';
+        inputyDiv.appendChild(inputText);
+        inputyDiv.appendChild(repeatInputText);
 
         let modalNoButton = document.createElement('button');
         modalNoButton.innerText = "Anuluj";
@@ -2258,8 +2303,15 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-        appendElementsToModal(modalContent, modalText, inputText, repeatInputText);
-        appendElementsToModal(modalContainer, modalContent, modalNoButton, modalYesButton);
+        let buttonyDiv = document.createElement("div");
+        buttonyDiv.classList.add("inputyDiv");
+        buttonyDiv.appendChild(modalNoButton);
+        buttonyDiv.appendChild(modalYesButton);
+
+        modalContent.appendChild(modalText);
+        modalContent.appendChild(inputyDiv);
+        modalContent.appendChild(buttonyDiv);
+        modalContainer.appendChild(modalContent);
         document.body.appendChild(modalContainer);
     }
 
@@ -2267,7 +2319,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return fetch(`/api/account/update/password/byemail?email=${email}&password=${password}`)
             .then(response => response.json())
             .catch(error => {
-                alert('Błąd podczas zmiany hasła:', error);
+                console.error('Błąd podczas zmiany hasła:', error);
             });
     }
 
@@ -2275,7 +2327,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return fetch(`/api/account/update/password/byid?accountID=${accountID}&password=${password}`)
             .then(response => response.json())
             .catch(error => {
-                alert('Błąd podczas zmiany hasła:', error);
+                console.error('Błąd podczas zmiany hasła:', error);
             });
     }
 
@@ -2318,7 +2370,7 @@ document.addEventListener("DOMContentLoaded", function () {
             divElement.textContent += `Format: ${copy.format}, `;
             divElement.textContent += `Język: ${copy.language}, `;
             divElement.textContent += `Status: ${copy.status}, `;
-            divElement.textContent += `Filia: ${copy.libraryID}. `;
+            divElement.textContent += `ID Filii: ${copy.libraryID}. `;
             // Append the div to the container
             containerDiv.appendChild(divElement);
             i+=1;
@@ -2449,7 +2501,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if(user_type==="emp") {
                     fetchEmployeeData(user_id);
                 }else if(user_type==="reader"){
-                    fetchReaderData();
+                   fetchReaderData();
                 }
                 else if(user_type==="adm"){
                     getAdminData();
@@ -2582,22 +2634,7 @@ document.addEventListener("DOMContentLoaded", function () {
         dataDiv.appendChild(olElement);
     }
 
-    function usunKonto(){
-        fetch(`/api/reader/byid?readerID=${user_id}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.length > 0) {
-                    accountID = data[0].accountID;
-                    console.log("Account ID:", accountID);
-                    deleteReaderAndAccount([user_id, accountID]);
-                } else {
-                    console.log("Tablica danych jest pusta.");
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching reader data:', error);
-            });
-    }
+
 
     function deleteReaderAndAccount(params) {
         [readerID, accountID] = params;
@@ -2625,6 +2662,90 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.error('Błąd podczas usuwania czytelnika i konta:', error);
                 throw error;
             });
+    }
+
+    function addOpeningForm() {
+        let modalContainer = document.createElement('div');
+        modalContainer.classList.add("overlay");
+        let modalContent = document.createElement('div');
+        modalContent.classList.add("overlay-content-column");
+        let modalText = document.createElement('h2');
+        modalText.innerText =`Zmień godziny otwarcia:`;
+
+        let selecty = document.createElement("div");
+        selecty.classList.add("inputyDiv");
+        let librarySelect = document.createElement('select');
+        let libraryName = ['Filia Czyżyny', 'Filia Śródmieście', 'Filia Bronowice', 'Filia Grzegórzki', 'Filia Krowodrza'];
+        let libraryDATA = [1, 2, 3, 4, 5];
+        for (let i = 0; i < 5; i++) {
+            let option = document.createElement('option');
+            option.value = libraryDATA[i];
+            option.text = libraryName[i];
+            librarySelect.appendChild(option);
+        }
+
+        // let libraries = [];
+        // getLibrariesData()
+        //     .then(data => {
+        //         for (let i = 0; i < data.length; i++) {
+        //             libraries.push(data[i]);
+        //         }
+        //         for(let i = 0; i < libraries.length; i++) {
+        //             let option = document.createElement('option');
+        //             option.value = libraries[i].id;
+        //             option.text = libraries[i].name;
+        //
+        //             librarySelect.appendChild(option);
+        //         }
+        //         document.body.appendChild(librarySelect);
+        //     })
+        //     .catch(error => {
+        //         console.error('Wystąpił błąd podczas pobierania danych:', error);
+        //     });
+        // document.body.appendChild(librarySelect);
+
+        let daySelect = document.createElement('select');
+        let daysOfWeek = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
+        for (let i = 0; i < daysOfWeek.length; i++) {
+            let option = document.createElement('option');
+            option.value = daysOfWeek[i];
+            option.text = daysOfWeek[i];
+            daySelect.appendChild(option);
+        }
+        selecty.appendChild(librarySelect);
+        selecty.appendChild(daySelect);
+
+        let inputyDiv = document.createElement("div");
+        inputyDiv.classList.add("inputyDiv");
+        let openHour = document.createElement('input');
+        openHour.type = 'time';
+        let closeHour = document.createElement('input');
+        closeHour.type = 'time';
+        inputyDiv.appendChild(openHour);
+        inputyDiv.appendChild(closeHour);
+
+        let buttonyDiv = document.createElement("div");
+        buttonyDiv.classList.add("inputyDiv");
+        let modalNoButton = document.createElement('button');
+        modalNoButton.innerText = 'Anuluj';
+        let modalYesButton = document.createElement('button');
+        modalYesButton.innerText = 'Zapisz';
+        buttonyDiv.appendChild(modalYesButton);
+        buttonyDiv.appendChild(modalNoButton);
+
+        modalContent.appendChild(modalText);
+        modalContent.appendChild(selecty);
+        modalContent.appendChild(inputyDiv);
+        modalContent.appendChild(buttonyDiv);
+        modalContainer.appendChild(modalContent);
+        document.body.appendChild(modalContainer);
+
+        modalNoButton.addEventListener('click', function() {
+            document.body.removeChild(modalContainer);
+        });
+        modalYesButton.addEventListener('click', function() {
+            addLibraryOpening(librarySelect, daySelect, openHour, closeHour);
+        });
     }
 
     function fetchAllEmployeesData() {
@@ -2757,7 +2878,7 @@ function applyState(state) {
     if (state) {
         // Apply the saved user_id and user_type
         // Replace setUserId and setUserType with the actual functions to set user_id and user_type
-        user_id=(state.user_id);
+       user_id=(state.user_id);
         user_type=(state.user_type);
         // Apply the saved content to additionalDiv1
         document.querySelector('.additional-div1').innerHTML = state.additionalDiv1Content;
