@@ -39,7 +39,6 @@ document.addEventListener("DOMContentLoaded", function () {
         <button class="next">&#10095;</button>
             </>
         `;
-        // Reinitialize slideshow and login button functionality
         initializeSlideshow();
         initializeLoginButton();
     });
