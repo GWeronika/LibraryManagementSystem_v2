@@ -14,12 +14,7 @@ import java.util.List;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long>, JpaSpecificationExecutor<Account> {
     default List<Account> findAccountByEmail(String email) {
-        List<Account> list = findAll(getSpecification(email), Pageable.unpaged()).getContent();
-        if(!list.isEmpty()) {
-            return list;
-        } else {
-            throw new RuntimeException("Nie znaleziono konta o podanym adresie email");
-        }
+        return findAll(getSpecification(email), Pageable.unpaged()).getContent();
     }
 
     private Specification<Account> getSpecification(String email) {

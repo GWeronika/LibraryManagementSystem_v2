@@ -317,6 +317,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     <label for="email">Email:</label>
                         <input type="email" id="emailRegister" name="email" required>
+                    <label for="pass">Powtórz hasło:</label>
+                        <input type="password" id="confirmPassword" name="pass" required>
                   </div>
 									</div>
                   <button type="submit" id="registerButton">Register</button>
@@ -1160,7 +1162,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
         let overlay = document.getElementsByClassName("overlay");
-        overlay.remove();//
+        overlay.remove();
     }
 
     function initializeAddButtonOne() {
@@ -1217,20 +1219,69 @@ document.addEventListener("DOMContentLoaded", function () {
     initializeRegisterButton();
 
     function registerButtonClick() {
-        let firstName = document.getElementById("name").value;
-        console.log("firstName:", firstName);
-        let lastName = document.getElementById("lastName").value;
-        console.log("lastName:", lastName);
-        let phoneNum = document.getElementById("numerTelefonu").value;
-        console.log("phone:", phoneNum);
-        let email = document.getElementById("emailRegister").value;
-        console.log("email:", email);
-        let password = document.getElementById("passwordRegister").value;
-        console.log("pass:", password);
+        let firstNameInput = document.getElementById("name");
+        let lastNameInput = document.getElementById("lastName");
+        let phoneNumInput = document.getElementById("numerTelefonu");
+        let emailInput = document.getElementById("emailRegister");
+        let passwordInput = document.getElementById("passwordRegister");
+        let confirmInput = document.getElementById("confirmPassword");
+        let firstName = firstNameInput.value;
+        let lastName = lastNameInput.value;
+        let phoneNum = phoneNumInput.value;
+        let email = emailInput.value;
+        let password = passwordInput.value;
+        let confirm = confirmInput.value;
 
+        resetInputColors([firstNameInput, lastNameInput, phoneNumInput, emailInput, passwordInput, confirmInput]);
+
+        let isFirstNameValid = checkNameValidity(firstName);
+        let isLastNameValid = checkNameValidity(lastName);
+        let isPhoneNumValid = checkPhoneValidity(phoneNum);
+        let isEmailValid = checkEmailValidity(email);
+        let isPasswordValid = checkPasswordValidity(password);
+        let arePasswordsMatching = (password === confirm);
+
+        let invalidInputs = [];
+        if (!isFirstNameValid) invalidInputs.push({ input: firstNameInput, name: "Imię" });
+        if (!isLastNameValid) invalidInputs.push({ input: lastNameInput, name: "Nazwisko" });
+        if (!isPhoneNumValid) invalidInputs.push({ input: phoneNumInput, name: "Numer telefonu" });
+        if (!isEmailValid) invalidInputs.push({ input: emailInput, name: "Adres email" });
+        if (!isPasswordValid) invalidInputs.push({ input: passwordInput, name: "Hasło" });
+        if (!arePasswordsMatching) invalidInputs.push({ input: confirmInput, name: "Potwierdzenie hasła" });
+
+        if (invalidInputs.length === 1) {
+            let invalidInput = invalidInputs[0];
+            invalidInput.input.classList.add("invalid-input");
+            let additionalText;
+            if(invalidInput.name === "Hasło") {
+                additionalText = "Hasło powinno zawierać minimum 8 znaków z czego: minimum jedną małą literę, jedną wielką, jedną cyfrę, i jeden znak specjalny: @#$%^&+=!";
+            } else if(invalidInput.name === "Adres email") {
+                additionalText = "Adres email powinien się składać z małych liter a-z (bez polskich znaków) oraz znaków ._%+- i jednego znaku @";
+            } else if(invalidInput.name === "Numer telefonu") {
+                additionalText = "Numer telefonu powinien zaiwerać cyfry 0-9 ewentualnie znak + na początku";
+            } else {
+                additionalText = "Dane powinny zaczynać się od wielkiej litery i następujących po nich małych liter";
+            }
+            alert(`Nieprawidłowe dane w polu ${invalidInput.name}. ${additionalText}`);
+            return;
+        }
+        if (invalidInputs.length > 1) {
+            invalidInputs.forEach(({ input }) => {
+                input.classList.add("invalid-input");
+            });
+            alert("Błędne dane (zaznaczone na czerwono).");
+            return;
+        }
         createAccount(email, password, firstName, lastName, phoneNum);
-        let overlay = document.getElementsByClassName("overlay");
+        let overlay = document.getElementsByClassName("overlay")[0];
         overlay.remove();
+        alert("Konto utworzone.");
+    }
+
+    function resetInputColors(inputs) {
+        inputs.forEach(input => {
+            input.classList.remove("invalid-input");
+        });
     }
 
     function createAccount(email, password, firstName, lastName, phoneNumber) {
