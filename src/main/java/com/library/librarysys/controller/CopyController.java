@@ -20,6 +20,11 @@ public class CopyController {
         this.copyService = copyService;
     }
 
+    @GetMapping("/byid/copy")
+    public List<Copy> getCopyByID(Long copyID) {
+        return copyService.getCopiesByID(copyID);
+    }
+
     @GetMapping("/byid/book")
     public List<Copy> getCopiesByBookID(Long bookID) {
         return copyService.getCopies(bookID);

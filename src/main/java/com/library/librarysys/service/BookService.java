@@ -1,14 +1,12 @@
 package com.library.librarysys.service;
 
-import com.library.librarysys.entity.Account;
 import com.library.librarysys.entity.Book;
 import com.library.librarysys.repository.BookRepository;
-import com.library.password.PasswordEncoder;
-import com.library.password.SaltGenerator;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -24,6 +22,10 @@ public class BookService {
 
     public List<Book> getAllBooks() {
         return bookRepository.findAll();
+    }
+
+    public List<Book> getBookByID(Long bookID) {
+        return bookRepository.findAllById(Collections.singleton(bookID));
     }
 
     public List<Book> getByTitleAuthor(String title, String author) {

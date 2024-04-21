@@ -31,6 +31,18 @@ public class CopyService {
         this.bookService = bookService;
     }
 
+    public List<Copy> getCopiesByID(Long copyID) {
+        try {
+            if(copyID == null) {
+                throw new IllegalArgumentException("Niepoprawny copyID");
+            }
+            return copyRepository.findAllById(Collections.singleton(copyID));
+        } catch (Exception e) {
+            System.err.println("Błąd podczas pobierania egzemplarzy: " + e.getMessage());
+            throw e;
+        }
+    }
+
     public List<Copy> getCopies(Long bookID) {
         try {
             if (bookID == null) {

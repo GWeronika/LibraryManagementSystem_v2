@@ -26,6 +26,11 @@ public class BookController {
         return bookService.getAllBooks();
     }
 
+    @GetMapping("/byid")
+    public List<Book> getBookByID(Long bookID) {
+        return bookService.getBookByID(bookID);
+    }
+
     @GetMapping("/add")
     public ResponseEntity<Book> addBook(String title, String author) {
         Book book = bookService.addBook(title, author);

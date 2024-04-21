@@ -656,3 +656,10 @@ button:hover {
 	margin: 5px;
 }
 
+.invalid-input {
+	background-color: #F5A294;
+}
+
+.valid-input {
+	background-color: #f4f4f4;
+}
