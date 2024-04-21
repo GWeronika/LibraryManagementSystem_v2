@@ -3,11 +3,9 @@ let user_type = null;
 let daily_cost = 0.1;
 
 document.addEventListener("DOMContentLoaded", function () {
-    // Setup for Sieć bibliotek click
     let siecBibliotekDiv = document.querySelector(".logo");
     siecBibliotekDiv.addEventListener("click", function () {
         console.log("Logo clicked!");
-        // Restore default content
         let additionalDiv1 = document.querySelector(".additional-div1");
         additionalDiv1.classList.remove("flex-container-row");
         additionalDiv1.classList.remove("additional-scroll");
@@ -50,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 if (selectedLibrary) {
                     console.log("Dane dla biblioteki o ID", libraryId, ":", selectedLibrary);
-                    return selectedLibrary; // Zwraca dane znalezionej biblioteki
+                    return selectedLibrary;
                 } else {
                     console.error("Nie znaleziono biblioteki o ID", libraryId);
                     throw new Error("Nie znaleziono biblioteki o podanym ID");
@@ -64,11 +62,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let kontaktPage = document.querySelector(".kontakt");
     kontaktPage.addEventListener("click", function () {
-        // Create overlay div
         let overlayDiv = document.createElement("div");
         overlayDiv.classList.add("overlay");
 
-        // Prompt content with header and location options
         let contentDiv = document.createElement("div");
         contentDiv.classList.add("overlay-content");
         contentDiv.innerHTML = `
@@ -102,23 +98,17 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-        // Add event listener for location selection
         allLocations.addEventListener("click", function (event) {
             if (event.target.dataset.location) {
                 let selectedLocation = event.target.dataset.location;
-                // Handle the selected location, e.g., open another overlay
                 openLocationOverlay(selectedLocation);
             }
         });
 
-// Function to get libraryID based on the selected location
         function getLibraryID(selectedLocation) {
-            // You can customize this function based on your specific logic
-            // For now, let's assume a simple mapping where the first location has libraryID 1, the second has libraryID 2, and so on.
             const locationList = Array.from(allLocations.children);
             const index = locationList.findIndex(locationElement => locationElement.dataset.location === selectedLocation);
 
-            // Adding 1 to index to get libraryID (assuming indexing starts from 0)
             return index + 1;
         }
 
@@ -128,20 +118,16 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-        // Function to open another overlay based on the selected location
         function openLocationOverlay(location) {
             contentDiv.remove();
-            // Create and display another overlay with location-specific content
             let locationOverlayDiv = document.createElement("div");
             locationOverlayDiv.classList.add("overlay-content-column");
 
             let selectedLocation = event.target.dataset.location;
             let libraryID = getLibraryID(selectedLocation);
 
-            // Fetch opening data and library data concurrently
             Promise.all([fetchLibraryOpeningData(libraryID), getLibraryDataById(libraryID)])
                 .then(([openingsData, libraryData]) => {
-                    // Handle opening data
                     let openingsList = openingsData.map(openingArray => {
                         if (openingArray && openingArray.length > 0) {
                             let opening = openingArray[0];
@@ -157,13 +143,11 @@ document.addEventListener("DOMContentLoaded", function () {
                         }
                     }).join('');
 
-                    // Create an unordered list and append each opening time as a list item
                     let modalList = document.createElement('ul');
                     modalList.innerHTML = openingsList;
                     locationOverlayDiv.innerHTML = `<h2>Godziny otwarcia biblioteki ${location}</h2>`;
                     locationOverlayDiv.appendChild(modalList);
 
-                    // Handle library data
                     let libraryDataDiv = document.createElement("div");
                     libraryDataDiv.innerHTML = `
                 <h2>Dane kontaktowe:</h2>
@@ -171,8 +155,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 <p>Numer telefonu: ${libraryData.phoneNum}</p>
             `;
                     locationOverlayDiv.appendChild(libraryDataDiv);
-
-                    // Add the constructed locationOverlayDiv to the overlayDiv
                     overlayDiv.appendChild(locationOverlayDiv);
                 })
                 .catch(error => {
@@ -183,7 +165,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let katalog = document.getElementById("katalog");
     katalog.addEventListener("click", function () {
-        // Fetch book data and update additionalDiv1 when "Katalog" is clicked
         fetchBookData();
     });
 
@@ -237,7 +218,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 additionalDiv1.classList.remove("acc-page");
                 additionalDiv1.classList.add("flex-container-row");
 
-                // Add the first div with the login form
                 let loginFormDiv = document.createElement("div");
                 loginFormDiv.classList.add("login-form-container");
                 loginFormDiv.innerHTML = `
@@ -250,7 +230,6 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
                 additionalDiv1.appendChild(loginFormDiv);
 
-                // Add the second div with two links
                 let linkContainer = document.createElement("div");
                 linkContainer.classList.add("link-container");
 
@@ -373,7 +352,6 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 console.log(data);
                 if (data) {
-                   // let objectName;
                     user_id = data.id;
                     console.log(data.id);
 
@@ -401,11 +379,38 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
+    function checkEmailValidity(emailInput) {
+        let emailRegex = /^[a-z][a-z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return emailRegex.test(emailInput);
+    }
+
     function submitButtonClick() {
+        let emailInput = document.getElementById("email");
+        let passwordInput = document.getElementById("passwordLog");
+        let email = emailInput.value;
+        let password = passwordInput.value;
 
-        let email = document.getElementById("email").value;
-        let password= document.getElementById("passwordLog").value;
-
+        let isEmailValid = checkEmailValidity(email);
+        if (!isEmailValid && !password) {
+            emailInput.classList.add("invalid-input");
+            passwordInput.classList.add("invalid-input");
+            alert("Niepoprawny format adresu email i brak hasła.");
+            return;
+        }
+        if (!isEmailValid) {
+            emailInput.classList.add("invalid-input");
+            passwordInput.classList.remove("invalid-input");
+            alert("Niepoprawny format adresu email.");
+            return;
+        }
+        if (!password) {
+            passwordInput.classList.add("invalid-input");
+            emailInput.classList.remove("invalid-input");
+            alert("Proszę wprowadzić hasło.");
+            return;
+        }
+        emailInput.classList.remove("invalid-input");
+        passwordInput.classList.remove("invalid-input");
         fetchUserId(email, password);
     }
 
@@ -439,7 +444,6 @@ document.addEventListener("DOMContentLoaded", function () {
             user_type=null;
             location.reload();
         });
-
     }
 
     function showUserAcc(user_id){
@@ -946,76 +950,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         let modalContent = document.createElement('div');
                         modalContent.classList.add("overlay-content");
 
-                        // Create an unordered list and append each opening time as a list item
                          let modalList = document.createElement('ul');
                         modalList.innerHTML = openingsList;
-
-                        // modalList.querySelectorAll("li").forEach((opening, index) => {
-                        //     selectedOpening = openingsData[index];
-                        //     addEventListener('click', function () {
-                        //         let secondModalContainer = document.createElement('div');
-                        //         secondModalContainer.classList.add("overlay");
-                        //         let secondModalContent = document.createElement('div');
-                        //         secondModalContent.classList.add("overlay-content-column");
-                        //         let secondModalTitle = document.createElement('h2');
-                        //         secondModalTitle.innerText = `Edytuj godziny otwarcia:`;
-                        //         secondModalContent.appendChild(secondModalTitle);
-                        //
-                        //         let inputyDiv = document.createElement("div");
-                        //         let modalInputOpen = document.createElement('input');
-                        //         let modalInputClose = document.createElement('input');
-                        //         modalInputOpen.type = 'text';
-                        //         modalInputClose.type = 'text';
-                        //         modalInputOpen.placeholder = 'HH:MM';
-                        //         modalInputClose.placeholder = 'HH:MM';
-                        //
-                        //         secondModalContent.appendChild(inputyDiv);
-                        //         inputyDiv.appendChild(modalInputOpen);
-                        //         inputyDiv.appendChild(modalInputClose);
-                        //         inputyDiv.classList.add("inputyDiv");
-                        //
-                        //         let buttonsDiv = document.createElement("div");
-                        //         let modalSaveButton = createMButton('Zapisz');
-                        //         let modalCancelButton = createMButton('Anuluj');
-                        //         let modalDeleteButton = createMButton('Usuń');
-                        //         secondModalContent.appendChild(buttonsDiv);
-                        //         buttonsDiv.appendChild(modalSaveButton);
-                        //         buttonsDiv.appendChild(modalCancelButton);
-                        //         buttonsDiv.appendChild(modalDeleteButton);
-                        //         buttonsDiv.classList.add("inputyDiv");
-                        //
-                        //         secondModalContainer.appendChild(secondModalContent);
-                        //         document.body.appendChild(secondModalContainer);
-                        //
-                        //         if (selectedOpening.length > 0) {
-                        //             const firstOpening = selectedOpening[0];
-                        //
-                        //             const theId = firstOpening.id;
-                        //             const theDay = firstOpening.day;
-                        //
-                        //         modalSaveButton.addEventListener('click', function () {
-                        //             modalInputOpen = modalInputOpen.trim();
-                        //             modalInputClose = modalInputOpen.trim();
-                        //             addLibraryOpening(library.id, theId, theDay, modalInputOpen, modalInputClose);
-                        //             secondModalContainer.remove();
-                        //         });
-                        //
-                        //         modalCancelButton.addEventListener('click', function () {
-                        //             console.log('Kliknięto Anuluj');
-                        //             secondModalContainer.remove();
-                        //         });
-                        //
-                        //         modalDeleteButton.addEventListener('click', function () {
-                        //             console.log("SELECTED", selectedOpening);
-                        //             deleteLibraryOpening(library.id, theId)
-                        //                 .then(bool => { if(!bool) alert("Otwarcie nie zostało usunięte"); })
-                        //             secondModalContainer.remove();
-                        //         });
-                        //         } else {
-                        //             console.error('selectedOpenings is empty.');
-                        //         }
-                        //     });
-                        // });
 
                         modalContent.appendChild(modalList);
                         modalContainer.appendChild(modalContent);
@@ -1037,14 +973,11 @@ document.addEventListener("DOMContentLoaded", function () {
         dataDiv.appendChild(olElement);
     }
 
-
     function deleteLibraryOpening(libraryID, day) {
         return fetch(`/api/libopening/delete?libraryID=${libraryID}&day=${day}`)
             .then(response => response.json())
             .catch(error => console.error('Błąd podczas usuwania połączenia:', error));
     }
-
-
 
     function getLibrariesData() {
         return fetch(`/api/library/all`)
@@ -1081,25 +1014,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         });
                 }
             })
-    }
-
-
-
-    function createModalTimeInput(label, value) {
-        let labelElement = document.createElement('label');
-        labelElement.innerText = `${label}: `;
-        let inputElement = document.createElement('input');
-        inputElement.type = 'time';
-        inputElement.value = value;
-        inputElement.pattern = '^([01]?[0-9]|2[0-3]):[0-5][0-9]$';
-        labelElement.appendChild(inputElement);
-        return labelElement;
-    }
-
-    function createMButton(label) {
-        let buttonElement = document.createElement('button');
-        buttonElement.innerText = label;
-        return buttonElement;
     }
 
     function getAdminData() {
@@ -1172,22 +1086,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 throw error;
             });
     }
-
-    function changeAdminPassword(accountID, password) {
-        fetch(`/api/account/update/password/byid?accountID=${accountID}&password=${password}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Błąd HTTP. Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .catch(error => {
-                console.error('Błąd podczas zmiany hasła:', error);
-                throw error;
-            });
-    }
-
-
 
     function getEmployeeLibrary(employeeID) {
         return fetch(`/api/employee/byid?employeeID=${employeeID}`)
@@ -1338,25 +1236,16 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-
-// Function to handle the book data and update the additionalDiv1
     function handleBookData(data) {
         let additionalDiv1 = document.querySelector(".additional-div1");
-
-        // Add the "additional-div1" class to make it scrollable
         additionalDiv1.classList.add("additional-scroll");
-
-        // Clear previous content
         additionalDiv1.innerHTML = '';
 
-        // Create a container div to hold the book entries
         let containerDiv = document.createElement('div');
         containerDiv.classList.add('book-container');
         containerDiv.innerHTML = `
              <input type="text" id="Search" onkeyup="searchKatalog()" placeholder="Wyszukaj...">
         `;
-
-        // Append the container div to additionalDiv1
         additionalDiv1.appendChild(containerDiv);
 
         let searchDiv = document.getElementById("Search");
@@ -1364,30 +1253,20 @@ document.addEventListener("DOMContentLoaded", function () {
             searchKatalog();
         });
 
-        // Iterate through the data and create a div for each book
         data.forEach((book) => {
-            // Create a div element for each book
             let divElement = document.createElement('div');
             divElement.classList.add("target");
-            divElement.textContent = `${book.id}. ${book.title}, Autor: ${book.author}`; // Adjust property names accordingly
-            divElement.id = `book-${book.id}`; // Set a unique ID based on the book's ID
-
-            // Add event listener for each book div
+            divElement.textContent = `${book.id}. ${book.title}, Autor: ${book.author}`;
+            divElement.id = `book-${book.id}`;
             divElement.addEventListener('click', function() {
-                // Handle the click event for the book
                 console.log(`Book ID ${book.id} clicked!`);
-
-                // Fetch data for the specific book ID
                 fetchCopyData(book);
             });
-
-            // Append the div to the container
             containerDiv.appendChild(divElement);
         });
     }
 
 
-    // Function to fetch order data from the server
     function fetchOrderData(readerID) {
         fetch(`/api/orders/byid/reader?readerID=${readerID}`)
             .then(response => {
@@ -1400,16 +1279,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.log('Success - Received data:', data);
 
                 if (Array.isArray(data)) {
-                    // Call a function to handle the retrieved data and update the additionalDiv1
                     handleOrderData(data);
                 } else {
                     console.error('Error: Data is not an array');
-                    // Handle the error condition appropriately, e.g., show a message to the user
                 }
             })
             .catch(error => {
                 console.error('Error fetching order data:', error);
-                // If there's an error, you can still update the content or handle it accordingly
                 handleOrderData([]);
             });
     }
@@ -1557,7 +1433,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                         .catch(error => {
                                             console.error("Błąd podczas pobierania danych pracownika:", error);
                                         });
-                                }, 1000); // Adjust the delay as needed
+                                }, 1000);
                             });
 
                         });
@@ -1618,6 +1494,39 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
+    function fetchBookAndCopy(copyID) {
+        return fetch(`/api/copy/byid/copy?copyID=${copyID}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(copies => {
+                if (Array.isArray(copies) && copies.length > 0 && copies[0].id) {
+                    const bookPromises = copies.map(copy => {
+                        return fetch(`/api/book/byid?bookID=${copy.bookID}`)
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`HTTP error! Status: ${response.status}`);
+                                }
+                                return response.json();
+                            })
+                            .then(book => {
+                                const bookData = book[0];
+                                return { copy: copy, book: bookData };
+                            });
+                    });
+                    return Promise.all(bookPromises);
+                } else {
+                    throw new Error('Invalid or empty copy data.');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching copies from the specified library:', error);
+            });
+    }
+
 
     function handleOrderData(data) {
         let dataDiv = document.querySelector(".dataDiv");
@@ -1626,114 +1535,118 @@ document.addEventListener("DOMContentLoaded", function () {
         let olElement = document.createElement('ol');
 
         data.forEach((order) => {
-            let liElement = document.createElement('li');
-            liElement.textContent = `Order ID: ${order.id}, Date: ${order.date}, Status: ${order.status}`;
+            fetchBookAndCopy(order.copyID)
+                .then(results => {
+                    const {copy, book} = results[0];
+                    let liElement = document.createElement('li');
+                    liElement.innerHTML = `<b>${book.title}</b> / ${book.author} - ${copy.publisher}<br>Zamówienie od: ${order.date}, Status: ${order.status}`;
 
-            liElement.addEventListener('click', function () {
-                if(user_type === "reader") {
-                    let modalContainer = document.createElement('div');
-                    modalContainer.classList.add("overlay");
-                    let modalContent = document.createElement('div');
-                   modalContent.classList.add("overlay-content");
-                    let modalText = document.createElement('p');
-                    modalText.innerText =`Czy na pewno chcesz usunąć zamówienie ${order.id}?`;
-                    let modalNoButton = document.createElement('button');
-                    modalNoButton.innerText = 'Nie';
-                    let modalYesButton = document.createElement('button');
-                    modalYesButton.innerText = 'Tak';
+                    liElement.addEventListener('click', function () {
+                        if (user_type === "reader") {
+                            let modalContainer = document.createElement('div');
+                            modalContainer.classList.add("overlay");
+                            let modalContent = document.createElement('div');
+                            modalContent.classList.add("overlay-content");
+                            let modalText = document.createElement('p');
+                            modalText.innerText = `Czy na pewno chcesz usunąć zamówienie ${order.id}?`;
+                            let modalNoButton = document.createElement('button');
+                            modalNoButton.innerText = 'Nie';
+                            let modalYesButton = document.createElement('button');
+                            modalYesButton.innerText = 'Tak';
 
-                    modalContent.appendChild(modalText);
-                    modalContent.appendChild(modalNoButton);
-                    modalContent.appendChild(modalYesButton);
-                    modalContainer.appendChild(modalContent);
-                    document.body.appendChild(modalContainer);
+                            modalContent.appendChild(modalText);
+                            modalContent.appendChild(modalNoButton);
+                            modalContent.appendChild(modalYesButton);
+                            modalContainer.appendChild(modalContent);
+                            document.body.appendChild(modalContainer);
 
 
-                    modalNoButton.addEventListener('click', function() {
-                        document.body.removeChild(modalContainer);
-                        fetchOrderData(user_id);
-                    });
-                    modalYesButton.addEventListener('click', function() {
-                        deleteOrder(order.id)
-                            .then(() => {
+                            modalNoButton.addEventListener('click', function () {
                                 document.body.removeChild(modalContainer);
                                 fetchOrderData(user_id);
-                            })
-                            .catch(error => {
-                                console.error('Error deleting order:', error);
-                                // Handle the error condition appropriately
                             });
-                    });
+                            modalYesButton.addEventListener('click', function () {
+                                deleteOrder(order.id)
+                                    .then(() => {
+                                        document.body.removeChild(modalContainer);
+                                        fetchOrderData(user_id);
+                                    })
+                                    .catch(error => {
+                                        console.error('Error deleting order:', error);
+                                    });
+                            });
 
-                } else if(user_type === "emp") {
-                    let modalContainer = document.createElement('div');
-                    modalContainer.classList.add("overlay");
-                    let modalContent = document.createElement('div');
-                    modalContent.classList.add("overlay-content");
-                    let modalText = document.createElement('p');
-                    modalText.innerText =`Wybierz opcję dla zamówienia ${order.id}:`;
-                    let modalButton1 = document.createElement('button');
-                    modalButton1.innerText = "Przygotuj";
-                    let modalButton2 = document.createElement('button');
-                    modalButton2.innerText = "Wypożycz";
-                    let modalButton3 = document.createElement('button');
-                    modalButton3.innerText = "Anuluj";
+                        } else if (user_type === "emp") {
+                            let modalContainer = document.createElement('div');
+                            modalContainer.classList.add("overlay");
+                            let modalContent = document.createElement('div');
+                            modalContent.classList.add("overlay-content");
+                            let modalText = document.createElement('p');
+                            modalText.innerText = `Wybierz opcję dla zamówienia ${order.id}:`;
+                            let modalButton1 = document.createElement('button');
+                            modalButton1.innerText = "Przygotuj";
+                            let modalButton2 = document.createElement('button');
+                            modalButton2.innerText = "Wypożycz";
+                            let modalButton3 = document.createElement('button');
+                            modalButton3.innerText = "Anuluj";
 
-                    modalContent.appendChild(modalText);
-                    modalContent.appendChild(modalButton1);
-                    modalContent.appendChild(modalButton2);
-                    modalContent.appendChild(modalButton3);
-                    modalContainer.appendChild(modalContent);
-                    document.body.appendChild(modalContainer);
+                            modalContent.appendChild(modalText);
+                            modalContent.appendChild(modalButton1);
+                            modalContent.appendChild(modalButton2);
+                            modalContent.appendChild(modalButton3);
+                            modalContainer.appendChild(modalContent);
+                            document.body.appendChild(modalContainer);
 
 
-                    modalButton1.addEventListener('click', function() {
-                        prepareOrder(order.id);
-                        document.body.removeChild(modalContainer);
+                            modalButton1.addEventListener('click', function () {
+                                prepareOrder(order.id);
+                                document.body.removeChild(modalContainer);
 
-                        // Introduce a delay before fetching updated data
-                        setTimeout(function () {
-                            getEmployeeLibrary(user_id)
-                                .then(libraryID => {
-                                    fetchCopyByLibrary(libraryID)
-                                        .then(copies => {
-                                            fetchOrderDataForEmployee(copies);
+                                setTimeout(function () {
+                                    getEmployeeLibrary(user_id)
+                                        .then(libraryID => {
+                                            fetchCopyByLibrary(libraryID)
+                                                .then(copies => {
+                                                    fetchOrderDataForEmployee(copies);
+                                                })
                                         })
-                                })
-                                .catch(error => {
-                                    console.error("Błąd podczas pobierania danych pracownika:", error);
-                                });
-                        }, 1000); // Adjust the delay as needed
-                    });
+                                        .catch(error => {
+                                            console.error("Błąd podczas pobierania danych pracownika:", error);
+                                        });
+                                }, 1000);
+                            });
 
-                    modalButton2.addEventListener('click', function() {
-                        orderToLoan(order);
-                        document.body.removeChild(modalContainer);
+                            modalButton2.addEventListener('click', function () {
+                                orderToLoan(order);
+                                document.body.removeChild(modalContainer);
 
-                        // Introduce a delay before fetching updated data
-                        setTimeout(function () {
-                            getEmployeeLibrary(user_id)
-                                .then(libraryID => {
-                                    fetchCopyByLibrary(libraryID)
-                                        .then(copies => {
-                                            fetchOrderDataForEmployee(copies);
+                                setTimeout(function () {
+                                    getEmployeeLibrary(user_id)
+                                        .then(libraryID => {
+                                            fetchCopyByLibrary(libraryID)
+                                                .then(copies => {
+                                                    fetchOrderDataForEmployee(copies);
+                                                })
                                         })
-                                })
-                                .catch(error => {
-                                    console.error("Błąd podczas pobierania danych pracownika:", error);
-                                });
-                        }, 1000); // Adjust the delay as needed
+                                        .catch(error => {
+                                            console.error("Błąd podczas pobierania danych pracownika:", error);
+                                        });
+                                }, 1000);
+                            });
+
+                            modalButton3.addEventListener('click', function () {
+                                document.body.removeChild(modalContainer);
+                            });
+
+                        }
                     });
 
-                    modalButton3.addEventListener('click', function() {
-                        document.body.removeChild(modalContainer);
-                    });
-
-                }
-            });
-
-            olElement.appendChild(liElement);
-        });
+                    olElement.appendChild(liElement);
+                })
+                .catch(error => {
+                    console.error('Error handling order data:', error);
+                });
+        })
         dataDiv.appendChild(olElement);
     }
 
@@ -1785,26 +1698,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    function deleteLoan(loanID) {
-        return fetch(`/api/loan/delete?loanID=${loanID}`)
-            .then(response => response.json())
-            .then(result => {
-                return result;
-            })
-            .catch(error => {
-                console.error('Błąd podczas usuwania wypożyczenia:', error);
-                throw error;
-            });
-    }
-
-    function cancelOrder(orderID) {
-        fetch(`/api/orders/delete?orderID=${orderID}`)
-            .then(response => response.json())
-            .catch(error => {
-                console.error('Błąd podczas usuwania zamówienia:', error);
-            });
-    }
-
     function fetchLoanData(user_id) {
         fetch(`/api/loan/byid/reader?readerID=${user_id}`)
             .then(response => {
@@ -1829,163 +1722,160 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function handleLoanData(data) {
-        // Assuming your data is an array of loan objects with properties like 'id', 'loanDate', 'returnDate', etc.
-        // You may need to adjust this based on your actual data structure
         let dataDiv = document.querySelector(".dataDiv");
         dataDiv.innerHTML = '';
 
-        // Create an ordered list element
         let olElement = document.createElement('ol');
 
-        // Iterate through the data and append information to the ordered list
         data.forEach((loan) => {
-            let liElement = document.createElement('li');
-            liElement.textContent = `Loan ID: ${loan.id}, Loan Date: ${loan.loanDate}, Return Date: ${loan.returnDate}, Status: ${loan.status}`; // Adjust property names accordingly
+            fetchBookAndCopy(loan.copyID)
+                .then(results => {
+                    const {copy, book} = results[0];
+                    let liElement = document.createElement('li');
+                    liElement.innerHTML = `<b>${book.title}</b> / ${book.author} - ${copy.publisher}<br>Wypożyczenie od: ${loan.loanDate} do: ${loan.returnDate}, Status: ${loan.status}`;
 
-            if(loan.status !== 'RETURNED') {
-                liElement.addEventListener('click', function () {
-                    if (user_type === "reader") {
-                        if (loan.status === 'ACTIVE') {
-                            let modalContainer = document.createElement('div');
-                            modalContainer.classList.add("overlay");
-                            let modalContent = document.createElement('div');
-                            modalContent.classList.add("overlay-content");
-                            let modalText = document.createElement('p');
-                            modalText.innerText =`Czy chcesz przedłużyć ważność wypożyczenia ${loan.id}?`;
-                            let modalNoButton = document.createElement('button');
-                            modalNoButton.innerText = 'Nie';
-                            let modalYesButton = document.createElement('button');
-                            modalYesButton.innerText = 'Tak';
+                    if(loan.status !== 'RETURNED') {
+                        liElement.addEventListener('click', function () {
+                            if (user_type === "reader") {
+                                if (loan.status === 'ACTIVE') {
+                                    let modalContainer = document.createElement('div');
+                                    modalContainer.classList.add("overlay");
+                                    let modalContent = document.createElement('div');
+                                    modalContent.classList.add("overlay-content");
+                                    let modalText = document.createElement('p');
+                                    modalText.innerText =`Czy chcesz przedłużyć ważność wypożyczenia ${loan.id}?`;
+                                    let modalNoButton = document.createElement('button');
+                                    modalNoButton.innerText = 'Nie';
+                                    let modalYesButton = document.createElement('button');
+                                    modalYesButton.innerText = 'Tak';
 
-                            modalContent.appendChild(modalText);
-                            modalContent.appendChild(modalNoButton);
-                            modalContent.appendChild(modalYesButton);
-                            modalContainer.appendChild(modalContent);
-                            document.body.appendChild(modalContainer);
+                                    modalContent.appendChild(modalText);
+                                    modalContent.appendChild(modalNoButton);
+                                    modalContent.appendChild(modalYesButton);
+                                    modalContainer.appendChild(modalContent);
+                                    document.body.appendChild(modalContainer);
 
 
-                            modalNoButton.addEventListener('click', function() {
-                                document.body.removeChild(modalContainer);
-                                fetchOrderData(user_id);
-                            });
-                            modalYesButton.addEventListener('click', function() {
-                                prolongLoan(loan.id);
-                                document.body.removeChild(modalContainer);
-                                setTimeout(function () {
-                                    fetchLoanData(user_id);
-                                }, 1000); // Adjust the delay as needed
-                            });
-                        } else if (loan.status === 'OVERDUE') {
-                            prompt('Wypożyczenie przetrzymane. Prolongata niemożliwa');
-                        }
-                    } else if (user_type === "emp") {
-                        if (loan.status === 'ACTIVE') {
-                            let modalContainer = document.createElement('div');
-                            modalContainer.classList.add("overlay");
-                            let modalContent = document.createElement('div');
-                            modalContent.classList.add("overlay-content");
-                            let modalText = document.createElement('p');
-                            modalText.innerText =`Wybierz opcję dla wypożyczenia ${loan.id}:`;
-                            let modalButton1 = document.createElement('button');
-                            modalButton1.innerText = "Prolonguj";
-                            let modalButton2 = document.createElement('button');
-                            modalButton2.innerText = "Zakończ";
-                            let modalButton3 = document.createElement('button');
-                            modalButton3.innerText = "Anuluj";
+                                    modalNoButton.addEventListener('click', function() {
+                                        document.body.removeChild(modalContainer);
+                                        fetchLoanData(user_id);
+                                    });
+                                    modalYesButton.addEventListener('click', function() {
+                                        prolongLoan(loan.id);
+                                        document.body.removeChild(modalContainer);
+                                        setTimeout(function () {
+                                            fetchLoanData(user_id);
+                                        }, 1000);
+                                    });
+                                } else if (loan.status === 'OVERDUE') {
+                                    prompt('Wypożyczenie przetrzymane. Prolongata niemożliwa');
+                                }
+                            } else if (user_type === "emp") {
+                                if (loan.status === 'ACTIVE') {
+                                    let modalContainer = document.createElement('div');
+                                    modalContainer.classList.add("overlay");
+                                    let modalContent = document.createElement('div');
+                                    modalContent.classList.add("overlay-content");
+                                    let modalText = document.createElement('p');
+                                    modalText.innerText =`Wybierz opcję dla wypożyczenia ${loan.id}:`;
+                                    let modalButton1 = document.createElement('button');
+                                    modalButton1.innerText = "Prolonguj";
+                                    let modalButton2 = document.createElement('button');
+                                    modalButton2.innerText = "Zakończ";
+                                    let modalButton3 = document.createElement('button');
+                                    modalButton3.innerText = "Anuluj";
 
-                            modalContent.appendChild(modalText);
-                            modalContent.appendChild(modalButton1);
-                            modalContent.appendChild(modalButton2);
-                            modalContent.appendChild(modalButton3);
-                            modalContainer.appendChild(modalContent);
-                            document.body.appendChild(modalContainer);
+                                    modalContent.appendChild(modalText);
+                                    modalContent.appendChild(modalButton1);
+                                    modalContent.appendChild(modalButton2);
+                                    modalContent.appendChild(modalButton3);
+                                    modalContainer.appendChild(modalContent);
+                                    document.body.appendChild(modalContainer);
 
-                            modalButton1.addEventListener('click', function() {
-                                prolongLoan(loan.id);
-                                document.body.removeChild(modalContainer);
+                                    modalButton1.addEventListener('click', function() {
+                                        prolongLoan(loan.id);
+                                        document.body.removeChild(modalContainer);
 
-                                // Introduce a delay before fetching updated data
-                                setTimeout(function () {
-                                    getEmployeeLibrary(user_id)
-                                        .then(libraryID => {
-                                            fetchCopyByLibrary(libraryID)
-                                                .then(copies => {
-                                                    fetchLoanDataForEmployee(copies, handleLoanData);
+                                        setTimeout(function () {
+                                            getEmployeeLibrary(user_id)
+                                                .then(libraryID => {
+                                                    fetchCopyByLibrary(libraryID)
+                                                        .then(copies => {
+                                                            fetchLoanDataForEmployee(copies, handleLoanData);
+                                                        })
                                                 })
-                                        })
-                                        .catch(error => {
-                                            console.error("Błąd podczas pobierania danych pracownika:", error);
-                                        });
-                                }, 1000); // Adjust the delay as needed
-                            });
+                                                .catch(error => {
+                                                    console.error("Błąd podczas pobierania danych pracownika:", error);
+                                                });
+                                        }, 1000);
+                                    });
 
-                            modalButton2.addEventListener('click', function() {
-                                changeLoanStatus([loan.id, 'RETURNED']);
-                                document.body.removeChild(modalContainer);
+                                    modalButton2.addEventListener('click', function() {
+                                        changeLoanStatus([loan.id, 'RETURNED']);
+                                        document.body.removeChild(modalContainer);
 
-                                // Introduce a delay before fetching updated data
-                                setTimeout(function () {
-                                    getEmployeeLibrary(user_id)
-                                        .then(libraryID => {
-                                            fetchCopyByLibrary(libraryID)
-                                                .then(copies => {
-                                                    fetchLoanDataForEmployee(copies, handleLoanData);
+                                        setTimeout(function () {
+                                            getEmployeeLibrary(user_id)
+                                                .then(libraryID => {
+                                                    fetchCopyByLibrary(libraryID)
+                                                        .then(copies => {
+                                                            fetchLoanDataForEmployee(copies, handleLoanData);
+                                                        })
                                                 })
-                                        })
-                                        .catch(error => {
-                                            console.error("Błąd podczas pobierania danych pracownika:", error);
-                                        });
-                                }, 1000); // Adjust the delay as needed
-                            });
+                                                .catch(error => {
+                                                    console.error("Błąd podczas pobierania danych pracownika:", error);
+                                                });
+                                        }, 1000);
+                                    });
 
-                            modalButton3.addEventListener('click', function() {
-                                document.body.removeChild(modalContainer);
-                            });
+                                    modalButton3.addEventListener('click', function() {
+                                        document.body.removeChild(modalContainer);
+                                    });
 
-                        } else if (loan.status === 'OVERDUE') {
-                            let modalContainer = document.createElement('div');
-                            modalContainer.classList.add("overlay");
-                            let modalContent = document.createElement('div');
-                            modalContent.classList.add("overlay-content");
-                            let modalText = document.createElement('p');
-                            modalText.innerText =`Czy chcesz zakończyć wypożyczenie ${loan.id}?`;
-                            let modalNoButton = document.createElement('button');
-                            modalNoButton.innerText = 'Nie';
-                            let modalYesButton = document.createElement('button');
-                            modalYesButton.innerText = 'Tak';
+                                } else if (loan.status === 'OVERDUE') {
+                                    let modalContainer = document.createElement('div');
+                                    modalContainer.classList.add("overlay");
+                                    let modalContent = document.createElement('div');
+                                    modalContent.classList.add("overlay-content");
+                                    let modalText = document.createElement('p');
+                                    modalText.innerText =`Czy chcesz zakończyć wypożyczenie ${loan.id}?`;
+                                    let modalNoButton = document.createElement('button');
+                                    modalNoButton.innerText = 'Nie';
+                                    let modalYesButton = document.createElement('button');
+                                    modalYesButton.innerText = 'Tak';
 
-                            modalContent.appendChild(modalText);
-                            modalContent.appendChild(modalNoButton);
-                            modalContent.appendChild(modalYesButton);
-                            modalContainer.appendChild(modalContent);
-                            document.body.appendChild(modalContainer);
+                                    modalContent.appendChild(modalText);
+                                    modalContent.appendChild(modalNoButton);
+                                    modalContent.appendChild(modalYesButton);
+                                    modalContainer.appendChild(modalContent);
+                                    document.body.appendChild(modalContainer);
 
 
-                            modalNoButton.addEventListener('click', function() {
-                                document.body.removeChild(modalContainer);
-                            });
-                            modalYesButton.addEventListener('click', function() {
-                                changeLoanStatus(loan.id, 'RETURNED');
-                                document.body.removeChild(modalContainer);
-                                setTimeout(function () {
-                                    getEmployeeLibrary(user_id)
-                                        .then(libraryID => {
-                                            fetchCopyByLibrary(libraryID)
-                                                .then(copies => {
-                                                    fetchLoanDataForEmployee(copies, handleLoanData);
+                                    modalNoButton.addEventListener('click', function() {
+                                        document.body.removeChild(modalContainer);
+                                    });
+                                    modalYesButton.addEventListener('click', function() {
+                                        changeLoanStatus(loan.id, 'RETURNED');
+                                        document.body.removeChild(modalContainer);
+                                        setTimeout(function () {
+                                            getEmployeeLibrary(user_id)
+                                                .then(libraryID => {
+                                                    fetchCopyByLibrary(libraryID)
+                                                        .then(copies => {
+                                                            fetchLoanDataForEmployee(copies, handleLoanData);
+                                                        })
                                                 })
-                                        })
-                                        .catch(error => {
-                                            console.error("Błąd podczas pobierania danych pracownika:", error);
-                                        });
-                                }, 1000); // Adjust the delay as needed
-                            });
-                        }
+                                                .catch(error => {
+                                                    console.error("Błąd podczas pobierania danych pracownika:", error);
+                                                });
+                                        }, 1000);
+                                    });
+                                }
+                            }
+                        });
                     }
+                    olElement.appendChild(liElement);
                 });
-            }
-
-            olElement.appendChild(liElement);
         });
         dataDiv.appendChild(olElement);
     }
@@ -2146,7 +2036,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function fetchReaderData() {
-        //////////zamiana na readerID
         fetch(`/api/reader/byid?readerID=${user_id}`)
             .then(response => response.json())
             .then(data => {
@@ -2204,7 +2093,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
     }
-
 
     function changeReaderLastName(readerID, lastName) {
         fetch(`/api/reader/update/lastname?readerID=${readerID}&lastName=${lastName}`)
@@ -2334,7 +2222,6 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch(`/api/copy/byid/book?bookID=${book.id}`)
             .then(response => response.json())
             .then(data => {
-                // Call a function to handle the retrieved data and update the additionalDiv1
                 handleCopyData(data,book);
             })
             .catch(error => {
@@ -2343,26 +2230,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function handleCopyData(data, book) {
-        // Create the modal overlay
         let modalOverlay = document.createElement('div');
         modalOverlay.classList.add('copy-overlay');
 
-        // Create a container div to hold the copy entries
         let containerDiv = document.createElement('div');
         containerDiv.classList.add('copy-container');
 
         let tytulDiv = document.createElement('div');
         tytulDiv.classList.add('tytul-div-copy');
-
         tytulDiv.innerHTML=` ${book.title}, ${book.author}`;
 
         containerDiv.appendChild(tytulDiv);
         let  i= 1;
-        // Iterate through the data and create a div for each copy
         data.forEach((copy) => {
-            // Create a div element for each copy
             let divElement = document.createElement('div');
-            // Add specific properties to the div
             divElement.textContent += `${i}.  ${copy.publisher}, `;
             divElement.textContent += `ISBN: ${copy.isbn}, `;
             divElement.textContent += `Rok wydania: ${copy.releaseYear}, `;
@@ -2370,55 +2251,38 @@ document.addEventListener("DOMContentLoaded", function () {
             divElement.textContent += `Język: ${copy.language}, `;
             divElement.textContent += `Status: ${copy.status}, `;
             divElement.textContent += `ID Filii: ${copy.libraryID}. `;
-            // Append the div to the container
             containerDiv.appendChild(divElement);
             i+=1;
 
             divElement.addEventListener("click", function () {
-                // Check if a copy element or its child is clicked
-
-                // Check if the copy is available for ordering
                 if (user_type === "reader") {
                     if (copy.status === 'AVAILABLE') {
-                        // Show the order confirmation overlay
                         showOrderConfirmationOverlay(copy.id);
                     } else {
                         alert('Ten egzemplarz jest już wypożyczony! Wybierz inny.');
                     }
                 } else {
-                    // Show a message that the copy is unavailable for ordering
                     alert('W celu zamówienia ksiązki zaloguj się na konto klienta!');
                 }
             });
         });
-
-        // Append the container div to modalOverlay
         modalOverlay.appendChild(containerDiv);
 
-        // Create a close button for the overlay
         let closeButton = document.createElement('button');
         closeButton.classList.add("close-button-copy");
         closeButton.textContent = 'Zamknij';
         closeButton.addEventListener('click', function () {
-            // Remove the modal overlay when the close button is clicked
             document.body.removeChild(modalOverlay);
         });
 
-
-        // Append the close button to the modal overlay
         containerDiv.appendChild(closeButton);
-
-        // Append the modal overlay to the document body
         document.body.appendChild(modalOverlay);
     }
 
-    // Function to show order confirmation overlay
     function showOrderConfirmationOverlay(copyID) {
-        // Create the overlay div
         const overlayDiv = document.createElement("div");
         overlayDiv.classList.add("overlay");
 
-        // Create the order confirmation div
         const orderConfirmationDiv = document.createElement("div");
         orderConfirmationDiv.classList.add("overlay-content-2");
         orderConfirmationDiv.innerHTML = `
@@ -2427,28 +2291,19 @@ document.addEventListener("DOMContentLoaded", function () {
             <button id="cancelOrder">Cancel</button>
         `;
 
-        // Append the order confirmation div to the overlay div
         overlayDiv.appendChild(orderConfirmationDiv);
-
-        // Append the overlay div to the body
         document.body.appendChild(overlayDiv);
 
-        // Add event listeners for confirmation and cancellation
         document.getElementById("confirmOrder").addEventListener("click", function () {
-            // Call function to handle order confirmation and UI update
             confirmOrder(copyID);
-
-            // Close the overlay
             overlayDiv.remove();
         });
 
         document.getElementById("cancelOrder").addEventListener("click", function () {
-            // Close the overlay without confirming the order
             overlayDiv.remove();
         });
     }
 
-    // Function to handle order confirmation
     function confirmOrder(copyID) {
         fetch(`/api/orders/add?readerID=${user_id}&copyID=${copyID}`)
             .then(response => response.text())
@@ -2461,15 +2316,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-
-    function createOrder(params) {
-        const [readerID, copyID] = params;
-        fetch(`/api/orders/add?readerID=${readerID}&copyID=${copyID}`)
-            .then(response => response.json())
-            .catch(error => {
-                console.error('Błąd podczas tworzenia zamówienia:', error);
-            });
-    }
     function openChangeModal(info, displayText,  func, param) {
         let modalContainer = document.createElement('div');
         modalContainer.classList.add("overlay")
@@ -2505,7 +2351,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 else if(user_type==="adm"){
                     getAdminData();
                 }
-            }, 1000); // Adjust the delay as needed
+            }, 1000);
         });
 
         modalContent.appendChild(modalText);
@@ -2625,7 +2471,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     document.body.removeChild(modalContainer);
                     setTimeout(function () {
                         fetchAllReadersData();
-                    }, 1000); // Adjust the delay as needed
+                    }, 1000);
                 });
             });
             olElement.appendChild(liElement);
@@ -2682,26 +2528,6 @@ document.addEventListener("DOMContentLoaded", function () {
             option.text = libraryName[i];
             librarySelect.appendChild(option);
         }
-
-        // let libraries = [];
-        // getLibrariesData()
-        //     .then(data => {
-        //         for (let i = 0; i < data.length; i++) {
-        //             libraries.push(data[i]);
-        //         }
-        //         for(let i = 0; i < libraries.length; i++) {
-        //             let option = document.createElement('option');
-        //             option.value = libraries[i].id;
-        //             option.text = libraries[i].name;
-        //
-        //             librarySelect.appendChild(option);
-        //         }
-        //         document.body.appendChild(librarySelect);
-        //     })
-        //     .catch(error => {
-        //         console.error('Wystąpił błąd podczas pobierania danych:', error);
-        //     });
-        // document.body.appendChild(librarySelect);
 
         let daySelect = document.createElement('select');
         let daysOfWeek = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
@@ -2811,7 +2637,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 document.body.removeChild(modalContainer);
                                 setTimeout(function () {
                                     fetchAllEmployeesData();
-                                }, 1000); // Adjust the delay as needed
+                                }, 1000);
                             });
                         });
                         olElement.appendChild(liElement);
@@ -2850,40 +2676,4 @@ document.addEventListener("DOMContentLoaded", function () {
                 throw error;
             });
     }
-
-    function appendElementsToModal(modalContainer, ...elements) {
-        elements.forEach(element => modalContainer.appendChild(element));
-    }
-
 });
-
-// Save the current state in sessionStorage
-function saveState() {
-    let currentState = {
-        user_id: user_id,
-        user_type: user_type,
-        additionalDiv1Content: document.querySelector('.additional-div1').innerHTML
-    };
-    sessionStorage.setItem('pageState', JSON.stringify(currentState));
-}
-
-// Load the saved state from sessionStorage
-function loadState() {
-    let savedState = sessionStorage.getItem('pageState');
-    return savedState ? JSON.parse(savedState) : null;
-}
-
-function applyState(state) {
-    if (state) {
-        // Apply the saved user_id and user_type
-        // Replace setUserId and setUserType with the actual functions to set user_id and user_type
-       user_id=(state.user_id);
-        user_type=(state.user_type);
-        // Apply the saved content to additionalDiv1
-        document.querySelector('.additional-div1').innerHTML = state.additionalDiv1Content;
-    }
-
-}
-
-// Before reloading the page, save the current state
-//window.addEventListener('beforeunload', saveState);
