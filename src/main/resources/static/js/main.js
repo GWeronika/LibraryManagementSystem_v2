@@ -379,11 +379,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    function checkEmailValidity(emailInput) {
-        let emailRegex = /^[a-z][a-z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        return emailRegex.test(emailInput);
-    }
-
     function submitButtonClick() {
         let emailInput = document.getElementById("email");
         let passwordInput = document.getElementById("passwordLog");
@@ -1109,17 +1104,63 @@ document.addEventListener("DOMContentLoaded", function () {
         let passButton = document.getElementById("passButton");
         passButton.addEventListener("click", function (event) {
             event.preventDefault();
-            console.log("Button clicked");
+            console.log("Pass button clicked");
             passButtonClick();
         });
     }
-    function passButtonClick() {
-        let email = document.getElementById("emailPass").value;
-        let password = document.getElementById("forgotPassword").value;
 
-        changePassword(email, password);
+    function passButtonClick() {
+        let emailInput = document.getElementById("emailPass");
+        let passwordInput = document.getElementById("forgotPassword");
+        let confirmPasswordInput = document.getElementById("confirmPassword");
+        let email = emailInput.value;
+        let password = passwordInput.value;
+        let confirm = confirmPasswordInput.value;
+
+        let isEmailValid = checkEmailValidity(email);
+        if (!isEmailValid && !password) {
+            emailInput.classList.add("invalid-input");
+            passwordInput.classList.add("invalid-input");
+            alert("Niepoprawny format adresu email i brak hasła.");
+            return;
+        }
+        if (!isEmailValid) {
+            emailInput.classList.add("invalid-input");
+            passwordInput.classList.remove("invalid-input");
+            alert("Niepoprawny format adresu email.");
+            return;
+        }
+        if (!password) {
+            passwordInput.classList.add("invalid-input");
+            emailInput.classList.remove("invalid-input");
+            alert("Proszę wprowadzić hasło.");
+            return;
+        }
+        if (password !== confirm) {
+            passwordInput.classList.add("invalid-input");
+            confirmPasswordInput.classList.add("invalid-input");
+            alert("Hasło i potwierdzenie hasła nie są identyczne.");
+            return;
+        }
+        emailInput.classList.remove("invalid-input");
+        passwordInput.classList.remove("invalid-input");
+        confirmPasswordInput.classList.remove("invalid-input");
+
+        changePassword(email, password)
+            .then(isChanged => {
+                if (isChanged) {
+                    alert("Hasło zostało zmienione.");
+                } else {
+                    alert("Nie ma konta o podanych danych!");
+                }
+            })
+            .catch(error => {
+                console.error("Błąd podczas zmiany hasła:", error);
+                alert("Wystąpił błąd podczas zmiany hasła.");
+            });
+
         let overlay = document.getElementsByClassName("overlay");
-        overlay.remove();
+        overlay.remove();//
     }
 
     function initializeAddButtonOne() {
@@ -2206,7 +2247,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return fetch(`/api/account/update/password/byemail?email=${email}&password=${password}`)
             .then(response => response.json())
             .catch(error => {
-                console.error('Błąd podczas zmiany hasła:', error);
+                return false;
             });
     }
 
