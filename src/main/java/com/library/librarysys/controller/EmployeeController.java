@@ -32,8 +32,8 @@ public class EmployeeController {
     }
 
     @GetMapping("/add")
-    public void addEmployee(String firstName, String lastName, String address, String phoneNumber, Employee.Position position, Long libraryID, Account account) {
-        employeeService.addEmployee(firstName, lastName, address, phoneNumber, position, libraryID, account);
+    public void addEmployee(String firstName, String lastName, String address, String phoneNumber, Employee.Position position, Long libraryID, Long accountID) {
+        employeeService.addEmployee(firstName, lastName, address, phoneNumber, position, libraryID, accountID);
     }
 
     @GetMapping("/delete")
