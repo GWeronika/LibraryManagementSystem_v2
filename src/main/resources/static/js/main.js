@@ -2548,24 +2548,66 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function addEmpButtonClick() {
-        let name = document.getElementById("emp-name").value.toLowerCase();
-        let lastName = document.getElementById("emp-lastName").value.toLowerCase();
-        let address = document.getElementById("emp-address").value.toLowerCase();
-        let phoneNum = document.getElementById("emp-phoneNum").value.toLowerCase();
-        let libraryID = document.getElementById("emp-libraryID").value.toLowerCase();
-
+        let nameInput = document.getElementById("emp-name");
+        let lastNameInput = document.getElementById("emp-lastName");
+        let addressInput = document.getElementById("emp-address");
+        let phoneNumInput = document.getElementById("emp-phoneNum");
+        let libraryIDInput = document.getElementById("emp-libraryID");
+        let name = nameInput.value
+        let lastName = lastNameInput.value
+        let address = addressInput.value
+        let phoneNum = phoneNumInput.value
+        let libraryID = libraryIDInput.value
         let encodedName = encodeURIComponent(name);
         let encodedLastName = encodeURIComponent(lastName);
         let encodedAddress = encodeURIComponent(address);
         let encodedPhoneNum = encodeURIComponent(phoneNum);
         let encodedLibraryID = encodeURIComponent(libraryID);
 
-        let email = removeDiacritics(name) + '.' + removeDiacritics(lastName) + '@employee.example.com';
-        let password = 'EMPLOYEE' + removeDiacritics(name) + '.' + removeDiacritics(lastName) + '1!';
+        let first = name.toLowerCase();
+        let last = lastName.toLowerCase();
+
+        let email = removeDiacritics(first) + '.' + removeDiacritics(last) + '@employee.example.com';
+        let password = 'EMPLOYEE' + removeDiacritics(first) + '.' + removeDiacritics(last) + '1!';
+
+        resetInputColors([nameInput, lastNameInput, addressInput, phoneNumInput, libraryIDInput]);
+
+        let isFirstNameValid = checkNameValidity(name);
+        let isLastNameValid = checkNameValidity(lastName);
+        let isPhoneValid = checkPhoneValidity(phoneNum);
+
+        let invalidInputs = [];
+        if (!isFirstNameValid) invalidInputs.push({ input: nameInput, name: "Imię" });
+        if (!isLastNameValid) invalidInputs.push({ input: lastNameInput, name: "Nazwisko" });
+        if (!isPhoneValid) invalidInputs.push({ input: phoneNumInput, name: "Numer telefonu" });
+        if (address === "") invalidInputs.push({ input: addressInput, name: "Adres" });
+
+        if (invalidInputs.length === 1) {
+            let invalidInput = invalidInputs[0];
+            invalidInput.input.classList.add("invalid-input");
+            let additionalText;
+            if(invalidInput.name === "Numer telefonu") {
+                additionalText = "Numer telefonu powinien zawierać cyfry 0-9 ewentualnie znak + na początku";
+            } else if(invalidInput === "Imię" || invalidInput === "Nazwisko"){
+                additionalText = "Dane zaznaczone powinny rozpoczynać się wielką literą i następującymi po niej małymi literami";
+            } else {
+                additionalText = "Adres nie może być pusty";
+            }
+            alert(`Nieprawidłowe dane w polu ${invalidInput.name}. ${additionalText}`);
+            return;
+        }
+        if (invalidInputs.length > 1) {
+            invalidInputs.forEach(({ input }) => {
+                input.classList.add("invalid-input");
+            });
+            alert("Błędne dane (zaznaczone na czerwono).");
+            return;
+        }
 
         createEmployeeAccount(email, password, encodedName, encodedLastName, encodedAddress, encodedPhoneNum, encodedLibraryID);
+        alert("Konto pracownika utworzone.");
+        fetchAllEmployeesData();
     }
-
 
     function removeDiacritics(inputString) {
         const diacriticsMap = {
@@ -2580,6 +2622,7 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch(`/api/account/add?email=${email}&password=${password}`)
             .then(response => response.json())
             .then(account => {
+                console.log("Account ID:", account.id);
                 createEmployee(firstName, lastName, address, phoneNumber, libraryID, account.id);
             })
             .catch(error => {
@@ -2589,10 +2632,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function createEmployee(firstName, lastName, address, phoneNumber, libraryID, accountID) {
         let position = "LIBRARIAN";
+        console.log("Przekazany account ID:", accountID);
         fetch(`/api/employee/add?firstName=${firstName}&lastName=${lastName}&address=${address}&phoneNumber=${phoneNumber}&position=${position}&libraryID=${libraryID}&accountID=${accountID}`)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => console.log(data))
             .catch(error => {
-                console.error('Błąd podczas tworzenia czytelnika:', error);
+                console.error('Błąd podczas tworzenia pracownika:', error);
             });
     }
 
