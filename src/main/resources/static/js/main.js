@@ -1189,17 +1189,67 @@ document.addEventListener("DOMContentLoaded", function () {
     initializeAddButton();
 
     function addButtonClick() {
-        let title = encodeURIComponent(document.getElementById("title").value);
-        let author = encodeURIComponent(document.getElementById("author").value);
-        let publisher = encodeURIComponent(document.getElementById("publisher").value);
-        let isbn = encodeURIComponent(document.getElementById("isbn").value);
-        let year = encodeURIComponent(document.getElementById("year").value);
-        let format = encodeURIComponent(document.getElementById("format").value);
-        let language = encodeURIComponent(document.getElementById("language").value);
-        let blurb = encodeURIComponent(document.getElementById("blurb").value);
-        let libraryID = encodeURIComponent(document.getElementById("libraryID").value);
+        let titleInput = document.getElementById("title");
+        let authorInput = document.getElementById("author");
+        let publisherInput = document.getElementById("publisher");
+        let isbnInput = document.getElementById("isbn");
+        let yearInput = document.getElementById("year");
+        let formatInput = document.getElementById("format");
+        let languageInput = document.getElementById("language");
+        let blurbInput = document.getElementById("blurb");
+        let libraryIDInput = document.getElementById("libraryID");
+        let title = titleInput.value;
+        let author = authorInput.value;
+        let publisher = publisherInput.value;
+        let isbn = isbnInput.value;
+        let year = yearInput.value;
+        let format = formatInput.value;
+        let language = languageInput.value;
+        let blurb = blurbInput.value;
+        let libraryID = libraryIDInput.value;
 
+        resetInputColors([titleInput, authorInput, publisherInput, isbnInput, yearInput, formatInput, languageInput, blurbInput, libraryIDInput]);
+
+        let isYearValid = checkYearValidity(year);
+        let isLanguageValid = checkNameValidity(language);
+        let isAuthorValid = checkAuthorValidity(author);
+        let isISBNValid = checkISBNValidity(isbn);
+
+        let invalidInputs = [];
+        if (!isYearValid) invalidInputs.push({ input: yearInput, name: "Rok wydania" });
+        if (!isLanguageValid) invalidInputs.push({ input: languageInput, name: "Język" });
+        if (!isAuthorValid) invalidInputs.push({ input: authorInput, name: "Autor" });
+        if (!isISBNValid) invalidInputs.push({ input: isbnInput, name: "ISBN" });
+        if (title === "") invalidInputs.push({ input: titleInput, name: "Tytuł"});
+        if (publisher === "") invalidInputs.push({ input: publisherInput, name: "Wydawca"});
+
+        if (invalidInputs.length === 1) {
+            let invalidInput = invalidInputs[0];
+            invalidInput.input.classList.add("invalid-input");
+            let additionalText;
+            if(invalidInput.name === "Rok wydania") {
+                additionalText = "Rok wydania powinien zawierać ciąg maksymalnie 4 cyfr rozpoczynających się od 19 lub 20";
+            } else if(invalidInput.name === "Język") {
+                additionalText = "Język powinien zaczynać się od wielkiej litery i następujących po niej małych liter";
+            } else if(invalidInput.name === "Autor") {
+                additionalText = "Autor powinien składać się z wielkich i małych liter, które mogą być porozdzielane spacjami";
+            } else if(invalidInput.name === "ISBN") {
+                additionalText = "ISBN powinien składać się z ciągu 10-13 cyfr";
+            } else {
+                additionalText = "Dane zaznaczone na czerwono muszą zostać uzupełnione";
+            }
+            alert(`Nieprawidłowe dane w polu ${invalidInput.name}. ${additionalText}`);
+            return;
+        }
+        if (invalidInputs.length > 1) {
+            invalidInputs.forEach(({ input }) => {
+                input.classList.add("invalid-input");
+            });
+            alert("Błędne dane (zaznaczone na czerwono).");
+            return;
+        }
         createCopy(title, author, publisher, isbn, year, format, language, blurb, libraryID);
+        alert("Egzemplarz dodany.");
     }
 
     function createCopy(title, author, publisher, isbn, year, format, language, blurb, libraryID) {
