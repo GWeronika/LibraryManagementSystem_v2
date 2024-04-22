@@ -50,12 +50,12 @@ public class EmployeeService {
         }
     }
 
-    public void addEmployee(String firstName, String lastName, String address, String phoneNumber, Employee.Position position, Long libraryID, Account account) {
+    public void addEmployee(String firstName, String lastName, String address, String phoneNumber, Employee.Position position, Long libraryID, Long accountID) {
         try {
-            if (firstName == null || lastName == null || phoneNumber == null || address == null || position == null || libraryID == null || account == null) {
+            if (firstName == null || lastName == null || phoneNumber == null || address == null || position == null || libraryID == null || accountID == null) {
                 throw new IllegalArgumentException("Niepoprawne dane.");
             }
-            Employee employee = new Employee(firstName, lastName, address, phoneNumber, position, libraryID, account.getId());
+            Employee employee = new Employee(firstName, lastName, address, phoneNumber, position, libraryID, accountID);
             employeeRepository.save(employee);
             System.out.println("Pracownik dodany");
         } catch (Exception e) {

@@ -2563,11 +2563,6 @@ document.addEventListener("DOMContentLoaded", function () {
         let address = addressInput.value
         let phoneNum = phoneNumInput.value
         let libraryID = libraryIDInput.value
-        let encodedName = encodeURIComponent(name);
-        let encodedLastName = encodeURIComponent(lastName);
-        let encodedAddress = encodeURIComponent(address);
-        let encodedPhoneNum = encodeURIComponent(phoneNum);
-        let encodedLibraryID = encodeURIComponent(libraryID);
 
         let first = name.toLowerCase();
         let last = lastName.toLowerCase();
@@ -2608,8 +2603,7 @@ document.addEventListener("DOMContentLoaded", function () {
             alert("Błędne dane (zaznaczone na czerwono).");
             return;
         }
-
-        createEmployeeAccount(email, password, encodedName, encodedLastName, encodedAddress, encodedPhoneNum, encodedLibraryID);
+        createEmployeeAccount(email, password, name, lastName, address, phoneNum, libraryID);
         alert("Konto pracownika utworzone.");
         fetchAllEmployeesData();
     }
@@ -2619,7 +2613,6 @@ document.addEventListener("DOMContentLoaded", function () {
             'ą': 'a', 'ć': 'c', 'ę': 'e', 'ł': 'l', 'ń': 'n', 'ó': 'o', 'ś': 's', 'ź': 'z', 'ż': 'z',
             'Ą': 'A', 'Ć': 'C', 'Ę': 'E', 'Ł': 'L', 'Ń': 'N', 'Ó': 'O', 'Ś': 'S', 'Ź': 'Z', 'Ż': 'Z'
         };
-
         return inputString.replace(/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/g, match => diacriticsMap[match] || match);
     }
 
@@ -2627,7 +2620,6 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch(`/api/account/add?email=${email}&password=${password}`)
             .then(response => response.json())
             .then(account => {
-                console.log("Account ID:", account.id);
                 createEmployee(firstName, lastName, address, phoneNumber, libraryID, account.id);
             })
             .catch(error => {
@@ -2637,7 +2629,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function createEmployee(firstName, lastName, address, phoneNumber, libraryID, accountID) {
         let position = "LIBRARIAN";
-        console.log("Przekazany account ID:", accountID);
         fetch(`/api/employee/add?firstName=${firstName}&lastName=${lastName}&address=${address}&phoneNumber=${phoneNumber}&position=${position}&libraryID=${libraryID}&accountID=${accountID}`)
             .then(response => {
                 if (!response.ok) {
