@@ -2804,7 +2804,19 @@ document.addEventListener("DOMContentLoaded", function () {
             document.body.removeChild(modalContainer);
         });
         modalYesButton.addEventListener('click', function() {
-            addLibraryOpening(librarySelect, daySelect, openHour, closeHour);
+            console.log(`Library: ${librarySelect.value}`);
+            console.log(`Day: ${daySelect.value}`);
+            console.log(`Opening: ${openHour.value}`);
+            console.log(`Closing: ${closeHour.value}`);
+            if (openHour.value === "" || closeHour.value === "") {
+                alert("Wszystkie pola muszą zostać uzupełnione.");
+            } else if (openHour.value > closeHour.value) {
+                alert("Godzina otwarcia nie może być większa niż godzina zamknięcia.");
+            } else {
+                addLibraryOpening(librarySelect, daySelect, openHour, closeHour);
+                alert("Godziny otwarcia zostały zmienione");
+                document.body.removeChild(modalContainer);
+            }
         });
     }
 
