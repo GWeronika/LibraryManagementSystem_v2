@@ -854,8 +854,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.body.removeChild(modalContainer);
             });
             modalYesButton.addEventListener('click', function() {
-                daily_cost = modalInput.value;
-                document.body.removeChild(modalContainer);
+                if (!checkCostValidator(modalInput.value)) {
+                    alert("Wprowadź poprawną wartość dla kary.");
+                } else {
+                    daily_cost = modalInput.value;
+                    document.body.removeChild(modalContainer);
+                    setDailyOverdueCost();
+                }
             });
         });
     }
@@ -2816,6 +2821,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 addLibraryOpening(librarySelect, daySelect, openHour, closeHour);
                 alert("Godziny otwarcia zostały zmienione");
                 document.body.removeChild(modalContainer);
+                fetchLibrariesData();
             }
         });
     }

@@ -33,4 +33,7 @@ function checkISBNValidity(isbnInput) {
     return isbnRegex.test(isbnInput);
 }
 
-
+function checkCostValidator(costInput) {
+    let costRegex = /^(?!.*\.[^0-9]|\d*\.\d*\.)\d+(\.\d+)?$/;
+    return costRegex.test(costInput);
+}
