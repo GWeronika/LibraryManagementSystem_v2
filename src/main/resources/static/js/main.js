@@ -1071,6 +1071,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function changeAdminEmail(accountID, email) {
+        if (!checkEmailValidity(email)) {
+            return false;
+        }
         fetch(`/api/account/update/email?accountID=${accountID}&email=${email}`)
             .then(response => {
                 if (!response.ok) {
@@ -1186,17 +1189,67 @@ document.addEventListener("DOMContentLoaded", function () {
     initializeAddButton();
 
     function addButtonClick() {
-        let title = encodeURIComponent(document.getElementById("title").value);
-        let author = encodeURIComponent(document.getElementById("author").value);
-        let publisher = encodeURIComponent(document.getElementById("publisher").value);
-        let isbn = encodeURIComponent(document.getElementById("isbn").value);
-        let year = encodeURIComponent(document.getElementById("year").value);
-        let format = encodeURIComponent(document.getElementById("format").value);
-        let language = encodeURIComponent(document.getElementById("language").value);
-        let blurb = encodeURIComponent(document.getElementById("blurb").value);
-        let libraryID = encodeURIComponent(document.getElementById("libraryID").value);
+        let titleInput = document.getElementById("title");
+        let authorInput = document.getElementById("author");
+        let publisherInput = document.getElementById("publisher");
+        let isbnInput = document.getElementById("isbn");
+        let yearInput = document.getElementById("year");
+        let formatInput = document.getElementById("format");
+        let languageInput = document.getElementById("language");
+        let blurbInput = document.getElementById("blurb");
+        let libraryIDInput = document.getElementById("libraryID");
+        let title = titleInput.value;
+        let author = authorInput.value;
+        let publisher = publisherInput.value;
+        let isbn = isbnInput.value;
+        let year = yearInput.value;
+        let format = formatInput.value;
+        let language = languageInput.value;
+        let blurb = blurbInput.value;
+        let libraryID = libraryIDInput.value;
 
+        resetInputColors([titleInput, authorInput, publisherInput, isbnInput, yearInput, formatInput, languageInput, blurbInput, libraryIDInput]);
+
+        let isYearValid = checkYearValidity(year);
+        let isLanguageValid = checkNameValidity(language);
+        let isAuthorValid = checkAuthorValidity(author);
+        let isISBNValid = checkISBNValidity(isbn);
+
+        let invalidInputs = [];
+        if (!isYearValid) invalidInputs.push({ input: yearInput, name: "Rok wydania" });
+        if (!isLanguageValid) invalidInputs.push({ input: languageInput, name: "Język" });
+        if (!isAuthorValid) invalidInputs.push({ input: authorInput, name: "Autor" });
+        if (!isISBNValid) invalidInputs.push({ input: isbnInput, name: "ISBN" });
+        if (title === "") invalidInputs.push({ input: titleInput, name: "Tytuł"});
+        if (publisher === "") invalidInputs.push({ input: publisherInput, name: "Wydawca"});
+
+        if (invalidInputs.length === 1) {
+            let invalidInput = invalidInputs[0];
+            invalidInput.input.classList.add("invalid-input");
+            let additionalText;
+            if(invalidInput.name === "Rok wydania") {
+                additionalText = "Rok wydania powinien zawierać ciąg maksymalnie 4 cyfr rozpoczynających się od 19 lub 20";
+            } else if(invalidInput.name === "Język") {
+                additionalText = "Język powinien zaczynać się od wielkiej litery i następujących po niej małych liter";
+            } else if(invalidInput.name === "Autor") {
+                additionalText = "Autor powinien składać się z wielkich i małych liter, które mogą być porozdzielane spacjami";
+            } else if(invalidInput.name === "ISBN") {
+                additionalText = "ISBN powinien składać się z ciągu 10-13 cyfr";
+            } else {
+                additionalText = "Dane zaznaczone na czerwono muszą zostać uzupełnione";
+            }
+            alert(`Nieprawidłowe dane w polu ${invalidInput.name}. ${additionalText}`);
+            return;
+        }
+        if (invalidInputs.length > 1) {
+            invalidInputs.forEach(({ input }) => {
+                input.classList.add("invalid-input");
+            });
+            alert("Błędne dane (zaznaczone na czerwono).");
+            return;
+        }
         createCopy(title, author, publisher, isbn, year, format, language, blurb, libraryID);
+        alert("Egzemplarz dodany.");
     }
 
     function createCopy(title, author, publisher, isbn, year, format, language, blurb, libraryID) {
@@ -2024,6 +2077,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <p class="clickable">   Numer telefonu: ${employee.phoneNumber}</p>
                 <p>                     Stanowisko: ${employee.position}</p>
                 <p>                     Biblioteka: ${library.name}</p>
+                <p class="clickable">   Zmień hasło:</p>
             `;
 
                     divElement.style.marginLeft = '10px';
@@ -2045,6 +2099,9 @@ document.addEventListener("DOMContentLoaded", function () {
                                     break;
                                 case 'Numer telefonu':
                                     openChangeModal("Zmiana numeru telefonu", "Numer telefonu", changeEmployeePhoneNumber, user_id);
+                                    break;
+                                case 'Zmień hasło':
+                                    openChangePasswordModal(employee.accountID, null);
                                     break;
                                 default:
                                     console.warn('Brak obsługi dla klikniętego tekstu.');
@@ -2069,6 +2126,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function changeEmployeeLastName(employeeID, lastName) {
+        if (!checkNameValidity(lastName)) {
+            return false;
+        }
         fetch(`api/employee/update/lastName?employeeID=${employeeID}&lastName=${lastName}`)
             .then(response => {
                 if (!response.ok) {
@@ -2097,6 +2157,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function changeEmployeePhoneNumber(employeeID, phoneNumber) {
+        if (!checkPhoneValidity(phoneNumber)) {
+            return false;
+        }
         fetch(`api/employee/update/phone?employeeID=${employeeID}&phoneNum=${phoneNumber}`)
             .then(response => {
                 if (!response.ok) {
@@ -2183,10 +2246,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             });
         });
-
     }
 
     function changeReaderLastName(readerID, lastName) {
+        if (!checkNameValidity(lastName)) {
+            return false;
+        }
         fetch(`/api/reader/update/lastname?readerID=${readerID}&lastName=${lastName}`)
             .then(response => {
                 if (!response.ok) {
@@ -2216,6 +2281,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function changeReaderPhoneNumber(readerID, phoneNumber) {
+        if (!checkPhoneValidity(phoneNumber)) {
+            return false;
+        }
         fetch(`api/reader/update/phone?readerID=${readerID}&phoneNum=${phoneNumber}`)
             .then(response => {
                 if (!response.ok) {
@@ -2265,16 +2333,29 @@ document.addEventListener("DOMContentLoaded", function () {
             const newPassword2 = repeatInputText.value;
 
             if (newPassword1 === newPassword2) {
+                if (!checkPasswordValidity(newPassword1)) {
+                    alert("Hasło nie spełnia wymagań. Musi posiadać co najmniej 8 znaków, jedną małą literę, jedną wielką literę, jedną cyfrę oraz jeden znak specjalny: @#$%^&+=!.");
+                    inputText.classList.add("invalid-input");
+                    repeatInputText.classList.add("invalid-input");
+                    return;
+                }
+
                 if (accountID !== null && email !== null) {
                     changePassword(email, newPassword1)
-                        .then(r => { if(!r) alert("Hasło niezmienione. Hasło musi posiadać 8 znaków [A-Z][a-z][0-9][@#$%^&+=!.]"); });
+                        .then(r => {
+                            if (!r) alert("Hasło niezmienione. Hasło musi posiadać 8 znaków [A-Z][a-z][0-9][@#$%^&+=!.]");
+                        });
                 }
                 if (accountID === null) {
                     changePassword(email, newPassword1)
-                        .then(r => { if(!r) alert("Hasło niezmienione. Hasło musi posiadać 8 znaków [A-Z][a-z][0-9][@#$%^&+=!.]"); });
+                        .then(r => {
+                            if (!r) alert("Hasło niezmienione. Hasło musi posiadać 8 znaków [A-Z][a-z][0-9][@#$%^&+=!.]");
+                        });
                 } else if (email === null) {
                     changePasswordByID(accountID, newPassword1)
-                        .then(r => { if(!r) alert("Hasło niezmienione. Hasło musi posiadać 8 znaków [A-Z][a-z][0-9][@#$%^&+=!.]"); });
+                        .then(r => {
+                            if (!r) alert("Hasło niezmienione. Hasło musi posiadać 8 znaków [A-Z][a-z][0-9][@#$%^&+=!.]");
+                        });
                 }
                 document.body.removeChild(modalContainer);
             } else {
@@ -2293,6 +2374,7 @@ document.addEventListener("DOMContentLoaded", function () {
         modalContainer.appendChild(modalContent);
         document.body.appendChild(modalContainer);
     }
+
 
     function changePassword(email, password) {
         return fetch(`/api/account/update/password/byemail?email=${email}&password=${password}`)
@@ -2430,21 +2512,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let modalYesButton = document.createElement('button');
         modalYesButton.innerText = 'Tak';
-        modalYesButton.addEventListener('click', function() {
+        modalYesButton.addEventListener('click', function () {
             const userInput = inputText.value;
-            func(param, userInput);
+            if (!func(param, userInput)) {
+                let additionalText;
+                if(displayText === "Nazwisko") {
+                    additionalText = "Dane powinny zaczynać się od wielkiej litery i następujących po nich małych liter";
+                } else if(displayText === "Numer telefonu") {
+                    additionalText = "Numer telefonu powinien zaiwerać cyfry 0-9 ewentualnie znak + na początku";
+                } else if(displayText === "Adres email") {
+                    additionalText = "Adres email powinien się składać z małych liter a-z (bez polskich znaków) oraz znaków ._%+- i jednego znaku @";
+                }
+                alert(`Nieprawidłowe dane. ${additionalText}`);
+                return;
+            }
             document.body.removeChild(modalContainer);
             setTimeout(function () {
-                if(user_type==="emp") {
+                if (user_type === "emp") {
                     fetchEmployeeData(user_id);
-                }else if(user_type==="reader"){
-                   fetchReaderData();
-                }
-                else if(user_type==="adm"){
+                } else if (user_type === "reader") {
+                    fetchReaderData();
+                } else if (user_type === "adm") {
                     getAdminData();
                 }
             }, 1000);
         });
+
 
         modalContent.appendChild(modalText);
         modalContent.appendChild(inputText);
