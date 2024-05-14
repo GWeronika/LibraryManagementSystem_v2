@@ -1,6 +1,6 @@
 let user_id = null;
 let user_type = null;
-let daily_cost = 0.1;
+let daily_cost = localStorage.getItem("dailyCost");
 
 document.addEventListener("DOMContentLoaded", function () {
     let siecBibliotekDiv = document.querySelector(".logo");
@@ -977,9 +977,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (!checkCostValidator(modalInput.value)) {
                     alert("Wprowadź poprawną wartość dla kary.");
                 } else {
-                    daily_cost = modalInput.value;
-                    document.body.removeChild(modalContainer);
-                    setDailyOverdueCost();
+                   localStorage.setItem("dailyCost", modalInput.value);
+                   document.body.removeChild(modalContainer);
+                   dailyPunishmentElement.innerText = `Kara: ${modalInput.value}`;
                 }
             });
         });
