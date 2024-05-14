@@ -1,6 +1,6 @@
 let user_id = null;
 let user_type = null;
-let daily_cost = 0.1;
+let daily_cost = localStorage.getItem("dailyCost");
 
 document.addEventListener("DOMContentLoaded", function () {
     let siecBibliotekDiv = document.querySelector(".logo");
@@ -330,6 +330,34 @@ document.addEventListener("DOMContentLoaded", function () {
                         }
                     });
                     initializeRegisterButton();
+
+                    let savedName = sessionStorage.getItem("savedName");
+                    let savedLastName = sessionStorage.getItem("savedLastName");
+                    let savedPhoneNumber = sessionStorage.getItem("savedPhoneNumber");
+                    let savedEmail = sessionStorage.getItem("savedEmail");
+
+                    if (savedName) {
+                        document.getElementById("name").value = savedName;
+                    } if (savedLastName) {
+                        document.getElementById("lastName").value = savedLastName;
+                    } if (savedPhoneNumber) {
+                        document.getElementById("numerTelefonu").value = savedPhoneNumber;
+                    } if (savedEmail) {
+                        document.getElementById("emailRegister").value = savedEmail;
+                    }
+
+                    document.getElementById("name").addEventListener("change", function () {
+                        sessionStorage.setItem("savedName", this.value);
+                    });
+                    document.getElementById("lastName").addEventListener("change", function () {
+                        sessionStorage.setItem("savedLastName", this.value);
+                    });
+                    document.getElementById("numerTelefonu").addEventListener("change", function () {
+                        sessionStorage.setItem("savedPhoneNumber", this.value);
+                    });
+                    document.getElementById("emailRegister").addEventListener("change", function () {
+                        sessionStorage.setItem("savedEmail", this.value);
+                    });
                 });
             }
             initializeSlideshow();
@@ -645,6 +673,64 @@ document.addEventListener("DOMContentLoaded", function () {
             const blurbInput = document.getElementById("blurb");
             blurbInput.style.width = '20%';
             initializeAddButtonOne();
+
+            let savedTitle = sessionStorage.getItem("savedTitle");
+            let savedPublisher = sessionStorage.getItem("savedPublisher");
+            let savedYear = sessionStorage.getItem("savedYear");
+            let savedLanguage = sessionStorage.getItem("savedLanguage");
+            let savedAuthor = sessionStorage.getItem("savedAuthor");
+            let savedISBN = sessionStorage.getItem("savedISBN");
+            let savedFormat = sessionStorage.getItem("savedFormat");
+            let savedLibraryID = sessionStorage.getItem("savedLibraryID");
+            let savedBlurb = sessionStorage.getItem("savedBlurb");
+
+            if (savedTitle) {
+                document.getElementById("title").value = savedTitle;
+            } if (savedPublisher) {
+                document.getElementById("publisher").value = savedPublisher;
+            } if (savedYear) {
+                document.getElementById("year").value = savedYear;
+            } if (savedLanguage) {
+                document.getElementById("language").value = savedLanguage;
+            } if (savedAuthor) {
+                document.getElementById("author").value = savedAuthor;
+            } if (savedISBN) {
+                document.getElementById("isbn").value = savedISBN;
+            } if (savedFormat) {
+                document.getElementById("format").value = savedFormat;
+            } if (savedLibraryID) {
+                document.getElementById("libraryID").value = savedLibraryID;
+            } if (savedBlurb) {
+                document.getElementById("blurb").value = savedBlurb;
+            }
+
+            document.getElementById("title").addEventListener("change", function () {
+                sessionStorage.setItem("savedTitle", this.value);
+            });
+            document.getElementById("publisher").addEventListener("change", function () {
+                sessionStorage.setItem("savedPublisher", this.value);
+            });
+            document.getElementById("year").addEventListener("change", function () {
+                sessionStorage.setItem("savedYear", this.value);
+            });
+            document.getElementById("language").addEventListener("change", function () {
+                sessionStorage.setItem("savedLanguage", this.value);
+            });
+            document.getElementById("author").addEventListener("change", function () {
+                sessionStorage.setItem("savedAuthor", this.value);
+            });
+            document.getElementById("isbn").addEventListener("change", function () {
+                sessionStorage.setItem("savedISBN", this.value);
+            });
+            document.getElementById("format").addEventListener("change", function () {
+                sessionStorage.setItem("savedFormat", this.value);
+            });
+            document.getElementById("libraryID").addEventListener("change", function () {
+                sessionStorage.setItem("savedLibraryID", this.value);
+            });
+            document.getElementById("blurb").addEventListener("change", function () {
+                sessionStorage.setItem("savedBlurb", this.value);
+            });
         });
 
         zamowieniaDiv.addEventListener("click", function () {
@@ -794,6 +880,40 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
               `;
             initializeAddButton(addEmpButtonClick);
+
+            let savedNameE = sessionStorage.getItem("savedNameE");
+            let savedLastNameE = sessionStorage.getItem("savedLastNameE");
+            let savedLibraryIDE = sessionStorage.getItem("savedLibraryIDE");
+            let savedAddressE = sessionStorage.getItem("savedAddressE");
+            let savedPhoneNumberE = sessionStorage.getItem("savedPhoneNumberE");
+
+            if (savedNameE) {
+                document.getElementById("emp-name").value = savedNameE;
+            } if (savedLastNameE) {
+                document.getElementById("emp-lastName").value = savedLastNameE;
+            } if (savedLibraryIDE) {
+                document.getElementById("emp-libraryID").value = savedLibraryIDE;
+            } if (savedAddressE) {
+                document.getElementById("emp-address").value = savedAddressE;
+            } if (savedPhoneNumberE) {
+                document.getElementById("emp-phoneNum").value = savedPhoneNumberE;
+            }
+
+            document.getElementById("emp-name").addEventListener("change", function () {
+                sessionStorage.setItem("savedNameE", this.value);
+            });
+            document.getElementById("emp-lastName").addEventListener("change", function () {
+                sessionStorage.setItem("savedLastNameE", this.value);
+            });
+            document.getElementById("emp-libraryID").addEventListener("change", function () {
+                sessionStorage.setItem("savedLibraryIDE", this.value);
+            });
+            document.getElementById("emp-address").addEventListener("change", function () {
+                sessionStorage.setItem("savedAddressE", this.value);
+            });
+            document.getElementById("emp-phoneNum").addEventListener("change", function () {
+                sessionStorage.setItem("savedPhoneNumberE", this.value);
+            });
         });
 
         pracownicyDiv.addEventListener("click", function () {
@@ -857,9 +977,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (!checkCostValidator(modalInput.value)) {
                     alert("Wprowadź poprawną wartość dla kary.");
                 } else {
-                    daily_cost = modalInput.value;
-                    document.body.removeChild(modalContainer);
-                    setDailyOverdueCost();
+                   localStorage.setItem("dailyCost", modalInput.value);
+                   document.body.removeChild(modalContainer);
+                   dailyPunishmentElement.innerText = `Kara: ${modalInput.value}`;
                 }
             });
         });
